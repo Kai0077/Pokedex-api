@@ -119,7 +119,6 @@ export class PokemonService {
     const primaryTypeStr = data.types[0]?.type.name || "unknown";
 
     // 2. Ensure it is a valid TType
-    // UPDATED: "fighting" is now spelled correctly to match your new DB schema
     const validTypes = [
       "normal",
       "fighting",
