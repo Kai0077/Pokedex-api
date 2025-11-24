@@ -27,7 +27,7 @@ export class Deck {
 
   set name(value: string) {
     if (value.length === 0) {
-      throw new Error("Deck name cannot be empty");
+      throw new Error('Deck name cannot be empty');
     }
     this.#name = value;
   }

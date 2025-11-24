@@ -1,4 +1,4 @@
-export type TType = "normal" | "fightning" | "flying" | "poison" | "ground" | "rock" | "bug" | "ghost" | "steel" | "fire" | "water" | "grass" | "electric" | "psychic" | "ice" | "dragon" | "dark" | "fairy" | "stellar" | "unknown";
+export type TType = 'normal' | 'fightning' | 'flying' | 'poison' | 'ground' | 'rock' | 'bug' | 'ghost' | 'steel' | 'fire' | 'water' | 'grass' | 'electric' | 'psychic' | 'ice' | 'dragon' | 'dark' | 'fairy' | 'stellar' | 'unknown';
 
 export class Pokemon {
   #id: number;
@@ -64,7 +64,7 @@ export class Pokemon {
 
   set name(value: string) {
     if (value.length === 0) {
-      throw new Error("Pokemon name cannot be empty");
+      throw new Error('Pokemon name cannot be empty');
     }
     this.#name = value;
   }
@@ -75,35 +75,35 @@ export class Pokemon {
 
   set hp(value: number) {
     if (value <= 0) {
-      throw new Error("HP cannot be below 1");
+      throw new Error('HP cannot be below 1');
     }
     this.#hp = value;
   }
 
   set attack(value: number) {
     if (value <= 0) {
-      throw new Error("attack cannot be below 1");
+      throw new Error('attack cannot be below 1');
     }
     this.#attack = value;
   }
 
   set defence(value: number) {
     if (value <= 0) {
-      throw new Error("defence cannot be below 1");
+      throw new Error('defence cannot be below 1');
     }
     this.#defence = value;
   }
 
   set spriteUrl(value: string) {
     if (!Pokemon.isValidUrl(value)) {
-      throw new Error("Invalid sprite URL");
+      throw new Error('Invalid sprite URL');
     }
     this.#spriteUrl = value;
   }
 
   set spriteOfficialUrl(value: string) {
     if (!Pokemon.isValidUrl(value)) {
-      throw new Error("Invalid official sprite URL");
+      throw new Error('Invalid official sprite URL');
     }
     this.#spriteOfficialUrl = value;
   }

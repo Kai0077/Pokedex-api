@@ -1,4 +1,4 @@
-export type TGender = "male" | "female" | "other";
+export type TGender = 'male' | 'female' | 'other';
 
 export class Character {
   #id: number;
@@ -43,14 +43,14 @@ export class Character {
 
   set firstName(value: string) {
     if (value.length === 0) {
-      throw new Error("First name cannot be empty");
+      throw new Error('First name cannot be empty');
     }
     this.#firstName = value;
   }
 
   set lastName(value: string) {
     if (value.length === 0) {
-      throw new Error("Last name cannot be empty");
+      throw new Error('Last name cannot be empty');
     }
     this.#lastName = value;
   }
@@ -58,7 +58,7 @@ export class Character {
   set age(value: number) {
     const isValidAge = value >= 13 && value <= 110;
     if (!isValidAge) {
-      throw new Error("You must be between 13 and 110");
+      throw new Error('You must be between 13 and 110');
     }
     this.#age = value;
   }
