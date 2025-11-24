@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "NodeNext", // This requires imports to have .js extensions
-    "moduleResolution": "NodeNext", // Ensure this matches "module"
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
     "strict": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
@@ -13,7 +13,7 @@
   },
   "exclude": ["node_modules"],
   "ts-node": {
-    "esm": true, // <--- THIS FIXES THE ERROR
+    "esm": true,
     "experimentalSpecifierResolution": "node"
   }
 }
