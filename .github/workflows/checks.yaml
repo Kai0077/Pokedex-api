@@ -20,9 +20,11 @@ jobs:
           node-version: "22"
 
       - name: Install dependencies
+        working-directory: ./Pokedex-api
         run: npm install
 
       - name: Run ESLint
+        working-directory: ./Pokedex-api
         run: npm run lint
 
   # test:
@@ -60,7 +62,9 @@ jobs:
           node-version: "22"
 
       - name: Install dependencies
+        working-directory: ./Pokedex-api
         run: npm install
 
       - name: Check Formatting with Prettier
+        working-directory: ./Pokedex-api
         run: npm run format:check
