@@ -11,7 +11,7 @@ app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
 
-app.post("/character", createCharacter);
+app.post("/api/character", createCharacter);
 // Mount the pokemon routes under /api/pokemon
 // Any route defined in pokemonRoutes will inherit this prefix
 app.route("/api/pokemon", pokemonRoutes);
