@@ -12,8 +12,7 @@ export const db = mysql.createPool({
 });
 
 // Test connection
-db
-  .getConnection()
+db.getConnection()
   .then((conn) => {
     console.log("#### Database connected successfully");
     conn.release();
