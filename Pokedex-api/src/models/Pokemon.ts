@@ -1,6 +1,6 @@
 export type TType =
   | "normal"
-  | "fightning"
+  | "fighting"
   | "flying"
   | "poison"
   | "ground"
@@ -90,7 +90,7 @@ export class Pokemon {
   }
 
   set types(value: TType) {
-    this.#name = value;
+    this.#types = value;
   }
 
   set hp(value: number) {

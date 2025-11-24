@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS pokemon (
   id                 INT UNSIGNED NOT NULL,   -- id from the Pokémon API
   name               VARCHAR(100)  NOT NULL,
   types              ENUM(
-                        'normal', 'fightning', 'flying', 'poison', 'ground',
+                        'normal', 'fighting', 'flying', 'poison', 'ground',
                         'rock', 'bug', 'ghost', 'steel', 'fire', 'water',
                         'grass', 'electric', 'psychic', 'ice', 'dragon',
                         'dark', 'fairy', 'stellar', 'unknown'
