@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS pokemon (
   id                 INT UNSIGNED NOT NULL,   -- id from the Pokémon API
   name               VARCHAR(100)  NOT NULL,
   types              ENUM(
-                        'normal', 'fightning', 'flying', 'poison', 'ground',
+                        'normal', 'fighting', 'flying', 'poison', 'ground',
                         'rock', 'bug', 'ghost', 'steel', 'fire', 'water',
                         'grass', 'electric', 'psychic', 'ice', 'dragon',
                         'dark', 'fairy', 'stellar', 'unknown'
@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS pokemon (
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS `character` (
   id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  firstname  VARCHAR(100) NOT NULL,
-  lastname   VARCHAR(100) NOT NULL,
+  firstname  VARCHAR(45) NOT NULL,
+  lastname   VARCHAR(45) NOT NULL,
   age        TINYINT UNSIGNED NOT NULL,
   gender     ENUM('male', 'female', 'other') NOT NULL,
   PRIMARY KEY (id)
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `character` (
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS deck (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  name        VARCHAR(100) NOT NULL,
+  name        VARCHAR(45) NOT NULL,
   characterId INT UNSIGNED NOT NULL,
   PRIMARY KEY (id),
   KEY idx_deck_character (characterId),
