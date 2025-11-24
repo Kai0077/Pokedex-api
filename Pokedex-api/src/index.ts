@@ -1,5 +1,6 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
+import { createCharacter } from "./controllers/character-controller.js";
 import "dotenv/config";
 import pokemonRoutes from "./routes/pokemon-routes.js";
 
@@ -10,6 +11,7 @@ app.get("/", (c) => {
   return c.text("Hello Hono!");
 });
 
+app.post("/character", createCharacter);
 // Mount the pokemon routes under /api/pokemon
 // Any route defined in pokemonRoutes will inherit this prefix
 app.route("/api/pokemon", pokemonRoutes);
