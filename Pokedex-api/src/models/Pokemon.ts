@@ -1,6 +1,6 @@
 export type TType =
   | "normal"
-  | "fightning"
+  | "fighting"
   | "flying"
   | "poison"
   | "ground"

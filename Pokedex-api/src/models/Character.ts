@@ -42,15 +42,15 @@ export class Character {
   }
 
   set firstName(value: string) {
-    if (value.length === 0) {
-      throw new Error("First name cannot be empty");
+    if (value.length < 3 || value.length > 45) {
+      throw new Error("First name must be 3–45 characters ");
     }
     this.#firstName = value;
   }
 
   set lastName(value: string) {
-    if (value.length === 0) {
-      throw new Error("Last name cannot be empty");
+    if (value.length < 3 || value.length > 45) {
+      throw new Error("Last name must be 3–45 characters ");
     }
     this.#lastName = value;
   }
