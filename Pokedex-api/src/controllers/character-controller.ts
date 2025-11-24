@@ -1,6 +1,7 @@
+import type { Context } from "hono";
 import { CharacterService } from "../services/character-service.js";
 
-export const createCharacter = async (character) => {
+export const createCharacter = async (character: Context) => {
   try {
     const body = await character.req.json();
     const result = await CharacterService.createCharacter(body);
