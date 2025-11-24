@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "NodeNext",
+    "module": "NodeNext", // This requires imports to have .js extensions
+    "moduleResolution": "NodeNext", // Ensure this matches "module"
     "strict": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
@@ -10,5 +11,9 @@
     "jsxImportSource": "hono/jsx",
     "outDir": "./dist"
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  "ts-node": {
+    "esm": true, // <--- THIS FIXES THE ERROR
+    "experimentalSpecifierResolution": "node"
+  }
 }
