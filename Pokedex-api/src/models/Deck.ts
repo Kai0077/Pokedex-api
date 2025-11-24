@@ -3,11 +3,7 @@ export class Deck {
   #name: string;
   #characterId: number;
 
-  constructor(
-    id: number,
-    name: string,
-    characterId: number,
-  ) {
+  constructor(id: number, name: string, characterId: number) {
     this.#id = id;
     this.#name = name;
     this.#characterId = characterId;
@@ -27,7 +23,7 @@ export class Deck {
 
   set name(value: string) {
     if (value.length === 0) {
-      throw new Error('Deck name cannot be empty');
+      throw new Error("Deck name cannot be empty");
     }
     this.#name = value;
   }
