@@ -1,7 +1,7 @@
 import mysql from "mysql2/promise";
 import "dotenv/config";
 
-export const pool = mysql.createPool({
+export const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -12,7 +12,7 @@ export const pool = mysql.createPool({
 });
 
 // Test connection
-pool
+db
   .getConnection()
   .then((conn) => {
     console.log("#### Database connected successfully");

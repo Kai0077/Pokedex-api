@@ -9,7 +9,6 @@ export class PokemonController {
     this.pokemonService = new PokemonService();
   }
 
-  // Use arrow function to bind 'this' automatically or bind in constructor
   seedDatabase = async (c: Context) => {
     try {
       // 1. Fetch

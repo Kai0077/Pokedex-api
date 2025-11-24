@@ -1,4 +1,4 @@
-import { pool } from "../db/connection.js";
+import { db } from "../db/connection.js";
 import { Pokemon, type TType } from "../models/Pokemon.js";
 import type { PokeApiResponse } from "../types/index.js";
 import type { RowDataPacket } from "mysql2";
@@ -11,7 +11,7 @@ export class PokemonService {
    */
   async getPokemonById(id: number): Promise<Pokemon | null> {
     const query = "SELECT * FROM pokemon WHERE id = ?";
-    const [rows] = await pool.query<RowDataPacket[]>(query, [id]);
+    const [rows] = await db.query<RowDataPacket[]>(query, [id]);
 
     if (rows.length === 0) return null;
 
@@ -103,7 +103,7 @@ export class PokemonService {
     ]);
 
     try {
-      await pool.query(query, [values]);
+      await db.query(query, [values]);
       console.log(`Saved ${pokemons.length} pokemon to database.`);
     } catch (error) {
       console.error("Database save error:", error);
