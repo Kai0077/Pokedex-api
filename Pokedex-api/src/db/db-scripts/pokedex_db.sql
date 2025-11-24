@@ -32,8 +32,8 @@ CREATE TABLE IF NOT EXISTS pokemon (
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS `character` (
   id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  firstname  VARCHAR(100) NOT NULL,
-  lastname   VARCHAR(100) NOT NULL,
+  firstname  VARCHAR(45) NOT NULL,
+  lastname   VARCHAR(45) NOT NULL,
   age        TINYINT UNSIGNED NOT NULL,
   gender     ENUM('male', 'female', 'other') NOT NULL,
   PRIMARY KEY (id)
@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS `character` (
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS deck (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  name        VARCHAR(100) NOT NULL,
+  name        VARCHAR(45) NOT NULL,
   characterId INT UNSIGNED NOT NULL,
   PRIMARY KEY (id),
   KEY idx_deck_character (characterId),
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS deck (
     FOREIGN KEY (characterId)
     REFERENCES `character`(id)
     ON DELETE CASCADE
-    ON UPDATE CASCADE
+    ON UPDATE CASCADEfirstname
 ) ENGINE=InnoDB;
 
 -- ==========================================================
