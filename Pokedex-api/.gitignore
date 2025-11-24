@@ -11,6 +11,8 @@
 # deps
 node_modules/
 
+package-lock.json
+
 # env
 .env
 .env.production
