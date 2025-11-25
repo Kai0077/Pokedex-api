@@ -5,9 +5,14 @@ import "dotenv/config";
 import characterRoutes from "./routes/character-routes.js";
 import pokemonRoutes from "./routes/pokemon-routes.js";
 import deckRoutes from "./routes/deck-routes.js";
+import { cors } from "hono/cors";
 
 const app = new Hono();
 const port = Number(process.env.PORT) || 3000;
+
+app.use("*", cors({
+  origin: "http://localhost:5173",
+}));
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
