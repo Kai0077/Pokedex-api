@@ -1,7 +1,7 @@
 import { db } from "../db/connection.js";
 import { Pokemon, type TType } from "../models/Pokemon.js";
 import type { PokeApiResponse } from "../types/index.js";
-import type { RowDataPacket } from "mysql2";
+import type { ResultSetHeader, RowDataPacket } from "mysql2";
 
 export class PokemonService {
   private readonly baseUrl = process.env.POKE_API_BASE_URL;
@@ -160,5 +160,14 @@ export class PokemonService {
       data.sprites.front_default || "",
       data.sprites.other["official-artwork"].front_default || "",
     );
+  }
+
+  async savePokemonToCharacter(characterId: number, pokemons: Pokemon[]) {
+    for (const pokemon of pokemons) {
+      await db.execute<ResultSetHeader>(
+        "INSERT IGNORE INTO character_pokemon (characterId, pokemonId) VALUES (?, ?)",
+        [characterId, pokemon.id],
+      );
+    }
   }
 }
