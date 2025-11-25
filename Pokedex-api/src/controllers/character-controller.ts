@@ -34,3 +34,16 @@ export const getAllCharacters = async (c: Context) => {
     );
   }
 };
+
+export const getAllCharacterDecks = async (c: Context) => {
+  try {
+    const characterId = Number(c.req.param("id"));
+    const decks = await CharacterService.getDecksForCharacter(characterId);
+    return c.json(decks, 200);
+  } catch (error) {
+    return c.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      400,
+    );
+  }
+};

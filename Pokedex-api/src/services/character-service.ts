@@ -107,6 +107,42 @@ export class CharacterService {
   }
 
   // ---------------------------------------------------------
+  // GET ALL CHARACTER DECKS
+  // ---------------------------------------------------------
+  static async getDecksForCharacter(characterId: number) {
+    const [charRows] = await db.execute<RowDataPacket[]>(
+      "SELECT id FROM `character` WHERE id = ?",
+      [characterId],
+    );
+
+    if (charRows.length === 0) {
+      throw new Error("Character not found.");
+    }
+
+    const [deckRows] = await db.execute<RowDataPacket[]>(
+      "SELECT id AS deckId, name FROM deck WHERE characterId = ?",
+      [characterId],
+    );
+
+    for (const deck of deckRows) {
+      const [pokemonRows] = await db.execute<RowDataPacket[]>(
+        `
+      SELECT p.id, p.name, p.types, p.hp, p.attack, p.defence,
+             p.spriteUrl, p.spriteOfficialUrl
+      FROM pokemon_deck pd
+      JOIN pokemon p ON p.id = pd.pokemonId
+      WHERE pd.deckId = ?
+      `,
+        [deck.deckId],
+      );
+
+      deck.pokemon = pokemonRows;
+    }
+
+    return deckRows;
+  }
+
+  // ---------------------------------------------------------
   // INTERNAL: ENSURE STARTER POKEMON EXIST
   // ---------------------------------------------------------
   private static async ensureStarterPokemonExist() {
