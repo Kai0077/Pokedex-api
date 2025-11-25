@@ -46,3 +46,18 @@ export const updateDeck = async (c: Context) => {
     );
   }
 };
+
+export const deleteDeck = async (c: Context) => {
+  try {
+    const deckId = Number(c.req.param("deckId"));
+
+    const result = await DeckService.deleteDeck(deckId);
+
+    return c.json(result, 200);
+  } catch (error) {
+    return c.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      400,
+    );
+  }
+};

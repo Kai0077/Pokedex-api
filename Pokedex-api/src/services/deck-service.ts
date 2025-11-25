@@ -108,4 +108,21 @@ export class DeckService {
       pokemonIds,
     };
   }
+
+  static async deleteDeck(deckId: number) {
+    const [deckRows] = await db.execute<RowDataPacket[]>(
+      "SELECT id FROM deck WHERE id = ?",
+      [deckId],
+    );
+
+    if (deckRows.length === 0) {
+      throw new Error("Deck not found.");
+    }
+
+    await db.execute("DELETE FROM pokemon_deck WHERE deckId = ?", [deckId]);
+
+    await db.execute("DELETE FROM deck WHERE id = ?", [deckId]);
+
+    return { message: "Deck deleted successfully", deckId };
+  }
 }
