@@ -28,3 +28,21 @@ export const createDeck = async (c: Context) => {
     );
   }
 };
+
+export const updateDeck = async (c: Context) => {
+  try {
+    const deckId = Number(c.req.param("deckId"));
+    const body = await c.req.json();
+
+    const result = await DeckService.updateDeck(deckId, body);
+
+    return c.json(result, 200);
+  } catch (error) {
+    return c.json(
+      {
+        error: error instanceof Error ? error.message : "Unknown error",
+      },
+      400,
+    );
+  }
+};

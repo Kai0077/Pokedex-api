@@ -54,4 +54,58 @@ export class DeckService {
       pokemonIds,
     };
   }
+
+  static async updateDeck(
+    deckId: number,
+    data: { name: string; pokemonIds: number[] },
+  ) {
+    const { name, pokemonIds } = data;
+
+    if (!name || typeof name !== "string") {
+      throw new Error("Deck name is required.");
+    }
+
+    if (!pokemonIds || pokemonIds.length !== 5) {
+      throw new Error("A deck must contain exactly 5 Pokemon.");
+    }
+
+    const [deckRows] = await db.execute<RowDataPacket[]>(
+      "SELECT id, characterId FROM deck WHERE id = ?",
+      [deckId],
+    );
+
+    if (deckRows.length === 0) {
+      throw new Error("Deck not found.");
+    }
+
+    const characterId = deckRows[0].characterId;
+
+    const pokemonList = pokemonIds.join(",");
+
+    const [ownedRows] = await db.execute<RowDataPacket[]>(
+      "SELECT pokemonId FROM character_pokemon WHERE characterId = ? AND FIND_IN_SET(pokemonId, ?)",
+      [characterId, pokemonList],
+    );
+
+    if (ownedRows.length !== pokemonIds.length) {
+      throw new Error("Character does not own all selected Pokemon.");
+    }
+
+    await db.execute("UPDATE deck SET name = ? WHERE id = ?", [name, deckId]);
+
+    await db.execute("DELETE FROM pokemon_deck WHERE deckId = ?", [deckId]);
+
+    for (const pokemonId of pokemonIds) {
+      await db.execute(
+        "INSERT INTO pokemon_deck (deckId, pokemonId) VALUES (?, ?)",
+        [deckId, pokemonId],
+      );
+    }
+
+    return {
+      deckId,
+      name,
+      pokemonIds,
+    };
+  }
 }
