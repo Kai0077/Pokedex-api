@@ -4,6 +4,9 @@ import { Character } from "../models/Character.js";
 import type { CreateCharacterDTO } from "../types/character.js";
 
 export class CharacterService {
+  // ---------------------------------------------------------
+  // CREATE CHARACTER
+  // ---------------------------------------------------------
   static async createCharacter(data: CreateCharacterDTO) {
     const { firstName, lastName, age, gender, starter } = data;
 
@@ -20,6 +23,7 @@ export class CharacterService {
       throw new Error("Invalid starter Pokemon");
     }
 
+    // Create character
     const [result] = await db.execute<ResultSetHeader>(
       "INSERT INTO `character` (firstname, lastname, age, gender) VALUES (?, ?, ?, ?)",
       [firstName, lastName, age, gender],
@@ -27,6 +31,7 @@ export class CharacterService {
 
     const characterId = result.insertId;
 
+    // Get starter pokémon
     const [starterRows] = await db.execute<RowDataPacket[]>(
       "SELECT * FROM pokemon WHERE name = ? LIMIT 1",
       [starter.toLowerCase()],
@@ -38,6 +43,7 @@ export class CharacterService {
 
     const starterPokemon = starterRows[0];
 
+    // Give starter to character
     await db.execute(
       "INSERT INTO character_pokemon (characterId, pokemonId) VALUES (?, ?)",
       [characterId, starterPokemon.id],
@@ -63,6 +69,46 @@ export class CharacterService {
     };
   }
 
+  // ---------------------------------------------------------
+  // GET ALL POKEMON A CHARACTER OWNS
+  // ---------------------------------------------------------
+  static async getCharacterPokemon(characterId: number) {
+    const [rows] = await db.execute<RowDataPacket[]>(
+      `SELECT p.*
+      FROM pokemon p
+      JOIN character_pokemon cp ON cp.pokemonId = p.id
+      WHERE cp.characterId = ?`,
+      [characterId],
+    );
+
+    return rows;
+  }
+
+  // ---------------------------------------------------------
+  // GET ALL CHARACTERS
+  // ---------------------------------------------------------
+  static async getAllCharacters() {
+    const [rows] = await db.execute<RowDataPacket[]>(
+      `
+      SELECT
+        c.id,
+        c.firstname,
+        c.lastname,
+        c.age,
+        c.gender,
+        COUNT(d.id) AS deckCount
+      FROM \`character\` c
+      LEFT JOIN deck d ON d.characterId = c.id
+      GROUP BY c.id
+    `,
+    );
+
+    return rows;
+  }
+
+  // ---------------------------------------------------------
+  // INTERNAL: ENSURE STARTER POKEMON EXIST
+  // ---------------------------------------------------------
   private static async ensureStarterPokemonExist() {
     const starterIds = [1, 4, 7];
 

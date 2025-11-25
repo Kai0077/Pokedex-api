@@ -11,6 +11,12 @@ export class PokemonController {
 
   seedDatabase = async (c: Context) => {
     try {
+      const characterId = Number(c.req.param("id"));
+
+      if (isNaN(characterId)) {
+        return c.json({ error: "Invalid characterId" }, 400);
+      }
+
       // 1. Fetch
       const pokemonInstances = await this.pokemonService.fetchRandomPokemon(10);
 
@@ -20,6 +26,11 @@ export class PokemonController {
 
       // 2. Save
       await this.pokemonService.savePokemonBatch(pokemonInstances);
+
+      await this.pokemonService.savePokemonToCharacter(
+        characterId,
+        pokemonInstances,
+      );
 
       // 3. Map Domain Objects to plain JSON response
       const responseData: PokemonData[] = pokemonInstances.map((p) => ({
@@ -35,7 +46,8 @@ export class PokemonController {
 
       return c.json(
         {
-          message: "Success! 10 random Pokemon fetched and stored.",
+          message: `Success! 10 random Pokémon assigned to character #${characterId}.`,
+          characterId,
           count: responseData.length,
           data: responseData,
         },

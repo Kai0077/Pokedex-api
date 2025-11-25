@@ -10,3 +10,27 @@ export const createCharacter = async (character: Context) => {
     return character.json({ error: error.message }, 400);
   }
 };
+
+export const getCharacterPokemon = async (c: Context) => {
+  const characterId = Number(c.req.param("id"));
+
+  if (isNaN(characterId)) {
+    return c.json({ error: "Invalid character ID" }, 400);
+  }
+
+  const pokemon = await CharacterService.getCharacterPokemon(characterId);
+
+  return c.json(pokemon, 200);
+};
+
+export const getAllCharacters = async (c: Context) => {
+  try {
+    const characters = await CharacterService.getAllCharacters();
+    return c.json(characters, 200);
+  } catch (error) {
+    return c.json(
+      { error: error instanceof Error ? error.message : "Unknown error" },
+      500,
+    );
+  }
+};
