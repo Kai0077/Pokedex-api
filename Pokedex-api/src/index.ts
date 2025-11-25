@@ -10,9 +10,16 @@ import { cors } from "hono/cors";
 const app = new Hono();
 const port = Number(process.env.PORT) || 3000;
 
-app.use("*", cors({
-  origin: "http://localhost:5173",
-}));
+const allowedOrigin = process.env.FRONTEND_BASE_URL ?? "*";
+
+app.use(
+  "/*",
+  cors({
+    origin: allowedOrigin,
+    allowMethods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowHeaders: ["Content-Type", "Authorization"],
+  }),
+);
 
 app.get("/", (c) => {
   return c.text("Hello Hono!");
