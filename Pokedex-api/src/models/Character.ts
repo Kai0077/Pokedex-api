@@ -1,11 +1,12 @@
+// src/models/Character.ts
 export type TGender = "male" | "female" | "other";
 
 export class Character {
   #id: number;
-  #firstName: string;
-  #lastName: string;
-  #age: number;
-  #gender: TGender;
+  #firstName!: string;
+  #lastName!: string;
+  #age!: number;
+  #gender!: TGender;
 
   constructor(
     id: number,
@@ -15,10 +16,12 @@ export class Character {
     gender: TGender,
   ) {
     this.#id = id;
-    this.#firstName = firstName;
-    this.#lastName = lastName;
-    this.#age = age;
-    this.#gender = gender;
+
+    // use setters so validation always runs
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.age = age;
+    this.gender = gender;
   }
 
   get id(): number {
@@ -43,14 +46,14 @@ export class Character {
 
   set firstName(value: string) {
     if (value.length < 3 || value.length > 45) {
-      throw new Error("First name must be 3–45 characters ");
+      throw new Error("First name must be 3–45 characters");
     }
     this.#firstName = value;
   }
 
   set lastName(value: string) {
     if (value.length < 3 || value.length > 45) {
-      throw new Error("Last name must be 3–45 characters ");
+      throw new Error("Last name must be 3–45 characters");
     }
     this.#lastName = value;
   }
