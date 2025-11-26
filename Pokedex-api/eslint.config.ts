@@ -47,7 +47,7 @@ export default [
       "prefer-const": "error", // Forces variables whose value is not reassigned to be declared with const
       camelcase: "error", // Forces camelcase and prevents the use of the dash or underscore
       "no-unused-vars": "error", // Prevents the declaration of unused variables
-      quotes: ["error", "double"], // Forces the use of double quotes for strings
+      quotes: ["error", "double", { avoidEscape: true }], // Forces the use of double quotes for strings
       "no-array-constructor": "error", // Forces the declaration of arrays with bracket notation
       "no-new-object": "error", // Prevents the declaration of generic objects with new Object();
       eqeqeq: "error", // Forces the use of === over ==
@@ -67,6 +67,7 @@ export default [
       "no-constant-condition": "warn", // Forbids constant conditions (e.g., if (true), or if (1 === 1))
       "valid-typeof": "error", // Prevents using an incorrect data type in typeof
       "brace-style": "error", // Forces opening curly braces to be in the control line that starts them
+      "no-useless-escape": "off", // Turns off the rule that prevents unnecessary escape characters
     },
   },
 ];

@@ -1,9 +1,7 @@
 // src/services/character-service.ts
 import { Character } from "../models/Character.js";
 import type { CreateCharacterDTO } from "../types/character.js";
-import {
-  validateCreateCharacterDTO,
-} from "../validation/character-validation.js";
+import { validateCreateCharacterDTO } from "../validation/character-validation.js";
 import {
   insertCharacter,
   findPokemonByName,
@@ -29,12 +27,7 @@ export class CharacterService {
     await this.ensureStarterPokemonExist();
 
     // 3. create character in DB
-    const characterId = await insertCharacter(
-      firstName,
-      lastName,
-      age,
-      gender,
-    );
+    const characterId = await insertCharacter(firstName, lastName, age, gender);
 
     // 4. get starter pokémon
     const starterPokemon = await findPokemonByName(starter.toLowerCase());
@@ -113,8 +106,7 @@ export class CharacterService {
         attack: data.stats[1].base_stat,
         defence: data.stats[2].base_stat,
         spriteUrl: data.sprites.front_default,
-        spriteOfficialUrl:
-          data.sprites.other["official-artwork"].front_default,
+        spriteOfficialUrl: data.sprites.other["official-artwork"].front_default,
       };
 
       await insertPokemonRow(row);

@@ -94,9 +94,7 @@ export function validateStarter(starter: string): TStarter {
  * Full DTO validation – this is what you use in CharacterService.createCharacter.
  * Super easy to unit test with your black-box table.
  */
-export function validateCreateCharacterDTO(
-  data: CreateCharacterDTO,
-): {
+export function validateCreateCharacterDTO(data: CreateCharacterDTO): {
   firstName: string;
   lastName: string;
   age: number;
