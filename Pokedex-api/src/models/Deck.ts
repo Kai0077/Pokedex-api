@@ -6,7 +6,7 @@ export class Deck {
   constructor(id: number, name: string, characterId: number) {
     this.#id = id;
     this.#characterId = characterId;
-    this.name = name; 
+    this.name = name;
   }
 
   get id(): number {

@@ -1,13 +1,16 @@
 // src/services/pokemon-service.ts
-import { Pokemon, type TType } from '../models/Pokemon.js';
-import type { PokeApiResponse } from '../types/index.js';
+import { Pokemon, type TType } from "../models/Pokemon.js";
+import type { PokeApiResponse } from "../types/index.js";
 import {
   getPokemonRowById,
   insertOrUpdatePokemonBatch,
   linkPokemonToCharacter,
-} from '../repositories/pokemon-repository.js';
-import { validateGatherAllowed } from '../validation/gather-validation.js';
-import { getLastGatherAt, updateLastGatherAt } from '../repositories/character-repository.js';
+} from "../repositories/pokemon-repository.js";
+import { validateGatherAllowed } from "../validation/gather-validation.js";
+import {
+  getLastGatherAt,
+  updateLastGatherAt,
+} from "../repositories/character-repository.js";
 
 export class PokemonService {
   private readonly baseUrl = process.env.POKE_API_BASE_URL;
@@ -94,8 +97,8 @@ export class PokemonService {
       await insertOrUpdatePokemonBatch(rows);
       console.log(`Saved ${pokemons.length} pokemon to database.`);
     } catch (error) {
-      console.error('Database save error:', error);
-      throw new Error('Failed to save pokemon batch');
+      console.error("Database save error:", error);
+      throw new Error("Failed to save pokemon batch");
     }
   }
 
@@ -104,37 +107,35 @@ export class PokemonService {
    */
   private mapApiToDomain(data: PokeApiResponse): Pokemon {
     // 1. Get primary type
-    const primaryTypeStr = data.types[0]?.type.name || 'unknown';
+    const primaryTypeStr = data.types[0]?.type.name || "unknown";
 
     // 2. Ensure it is a valid TType
     const validTypes: TType[] = [
-      'normal',
-      'fighting',
-      'flying',
-      'poison',
-      'ground',
-      'rock',
-      'bug',
-      'ghost',
-      'steel',
-      'fire',
-      'water',
-      'grass',
-      'electric',
-      'psychic',
-      'ice',
-      'dragon',
-      'dark',
-      'fairy',
-      'stellar',
-      'unknown',
+      "normal",
+      "fighting",
+      "flying",
+      "poison",
+      "ground",
+      "rock",
+      "bug",
+      "ghost",
+      "steel",
+      "fire",
+      "water",
+      "grass",
+      "electric",
+      "psychic",
+      "ice",
+      "dragon",
+      "dark",
+      "fairy",
+      "stellar",
+      "unknown",
     ];
 
-    const finalType: TType = validTypes.includes(
-      primaryTypeStr as TType,
-    )
+    const finalType: TType = validTypes.includes(primaryTypeStr as TType)
       ? (primaryTypeStr as TType)
-      : 'unknown';
+      : "unknown";
 
     // 3. Extract Stats
     const getStat = (name: string) =>
@@ -144,11 +145,11 @@ export class PokemonService {
       data.id,
       data.name,
       finalType,
-      getStat('hp'),
-      getStat('attack'),
-      getStat('defense'),
-      data.sprites.front_default || '',
-      data.sprites.other['official-artwork'].front_default || '',
+      getStat("hp"),
+      getStat("attack"),
+      getStat("defense"),
+      data.sprites.front_default || "",
+      data.sprites.other["official-artwork"].front_default || "",
     );
   }
 
@@ -178,7 +179,7 @@ export class PokemonService {
     const pokemonInstances = await this.fetchRandomPokemon(count);
 
     if (pokemonInstances.length === 0) {
-      throw new Error('No pokemon could be fetched from API');
+      throw new Error("No pokemon could be fetched from API");
     }
 
     await this.savePokemonBatch(pokemonInstances);

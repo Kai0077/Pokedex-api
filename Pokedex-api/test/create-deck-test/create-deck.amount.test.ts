@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { validateCreateDeckDTO } from '../../src/validation/deck-validation.js';
+import { describe, it, expect } from "vitest";
+import { validateCreateDeckDTO } from "../../src/validation/deck-validation.js";
 
 type TestDto = {
   name: any;
@@ -7,8 +7,8 @@ type TestDto = {
 };
 
 const baseValid: TestDto = {
-  name: 'AlphaName',
-  pokemonIds: [1, 2, 3, 4, 5], 
+  name: "AlphaName",
+  pokemonIds: [1, 2, 3, 4, 5],
 };
 
 function dto(overrides: Partial<TestDto>): TestDto {
@@ -33,28 +33,28 @@ function runCase(
   }
 }
 
-describe('CreateDeckDTO – Amount of pokemons (B12–B17)', () => {
-  it('B12: amount = 0 -> invalid', () => {
+describe("CreateDeckDTO – Amount of pokemons (B12–B17)", () => {
+  it("B12: amount = 0 -> invalid", () => {
     runCase({ pokemonIds: [] }, false, /exactly 5 pokemon/i);
   });
 
-  it('B13: amount = 1 -> invalid', () => {
+  it("B13: amount = 1 -> invalid", () => {
     runCase({ pokemonIds: [1] }, false, /exactly 5 pokemon/i);
   });
 
-  it('B14: amount = 2 -> invalid', () => {
+  it("B14: amount = 2 -> invalid", () => {
     runCase({ pokemonIds: [1, 2] }, false, /exactly 5 pokemon/i);
   });
 
-  it('B15: amount = 4 -> invalid', () => {
+  it("B15: amount = 4 -> invalid", () => {
     runCase({ pokemonIds: [1, 2, 3, 4] }, false, /exactly 5 pokemon/i);
   });
 
-  it('B16: amount = 5 -> valid boundary', () => {
+  it("B16: amount = 5 -> valid boundary", () => {
     runCase({ pokemonIds: [1, 2, 3, 4, 5] }, true);
   });
 
-  it('B17: amount = 6 -> invalid', () => {
+  it("B17: amount = 6 -> invalid", () => {
     runCase({ pokemonIds: [1, 2, 3, 4, 5, 6] }, false, /exactly 5 pokemon/i);
   });
 });

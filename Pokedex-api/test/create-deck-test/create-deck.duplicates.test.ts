@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { validateCreateDeckDTO } from '../../src/validation/deck-validation.js';
+import { describe, it, expect } from "vitest";
+import { validateCreateDeckDTO } from "../../src/validation/deck-validation.js";
 
 type TestDto = {
   name: any;
@@ -7,7 +7,7 @@ type TestDto = {
 };
 
 const baseValid: TestDto = {
-  name: 'AlphaName',
+  name: "AlphaName",
   pokemonIds: [1, 2, 3, 4, 5],
 };
 
@@ -33,16 +33,12 @@ function runCase(
   }
 }
 
-describe('CreateDeckDTO – Duplicate pokemons (B18–B19)', () => {
-  it('B18: has duplicates [1, 2, 3, 2, 5] -> invalid', () => {
-    runCase(
-      { pokemonIds: [1, 2, 3, 2, 5] },
-      false,
-      /duplicate pokemon/i,
-    );
+describe("CreateDeckDTO – Duplicate pokemons (B18–B19)", () => {
+  it("B18: has duplicates [1, 2, 3, 2, 5] -> invalid", () => {
+    runCase({ pokemonIds: [1, 2, 3, 2, 5] }, false, /duplicate pokemon/i);
   });
 
-  it('B19: no duplicates [1, 2, 3, 4, 5] -> valid', () => {
+  it("B19: no duplicates [1, 2, 3, 4, 5] -> valid", () => {
     runCase({ pokemonIds: [1, 2, 3, 4, 5] }, true);
   });
 });

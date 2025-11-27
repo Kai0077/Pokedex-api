@@ -1,7 +1,9 @@
 import { db } from "../db/connection.js";
 import type { RowDataPacket, ResultSetHeader } from "mysql2";
 
-export async function characterExistsById(characterId: number): Promise<boolean> {
+export async function characterExistsById(
+  characterId: number,
+): Promise<boolean> {
   const [rows] = await db.execute<RowDataPacket[]>(
     "SELECT id FROM `character` WHERE id = ?",
     [characterId],

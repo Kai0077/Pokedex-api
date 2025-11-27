@@ -1,7 +1,7 @@
 import type { Context } from "hono";
 import { PokemonService } from "../services/pokemon-service.js";
 import type { PokemonData } from "../types/index.js";
-import { GATHER_COOLDOWN_SECONDS } from '../validation/gather-validation.js';
+import { GATHER_COOLDOWN_SECONDS } from "../validation/gather-validation.js";
 
 export class PokemonController {
   private pokemonService: PokemonService;
@@ -12,16 +12,18 @@ export class PokemonController {
 
   seedDatabase = async (c: Context) => {
     try {
-      const characterId = Number(c.req.param('id'));
+      const characterId = Number(c.req.param("id"));
 
       if (isNaN(characterId)) {
-        return c.json({ error: 'Invalid characterId' }, 400);
+        return c.json({ error: "Invalid characterId" }, 400);
       }
 
       const now = new Date();
 
-      const pokemonInstances =
-        await this.pokemonService.gatherForCharacter(characterId, 10);
+      const pokemonInstances = await this.pokemonService.gatherForCharacter(
+        characterId,
+        10,
+      );
 
       const responseData: PokemonData[] = pokemonInstances.map((p) => ({
         id: p.id,
@@ -50,13 +52,11 @@ export class PokemonController {
         200,
       );
     } catch (error) {
-      console.error('Seed error:', error);
+      console.error("Seed error:", error);
       return c.json(
         {
           error:
-            error instanceof Error
-              ? error.message
-              : 'Failed to seed database',
+            error instanceof Error ? error.message : "Failed to seed database",
         },
         400,
       );

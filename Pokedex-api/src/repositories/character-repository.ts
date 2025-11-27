@@ -136,12 +136,12 @@ export async function getLastGatherAt(
   characterId: number,
 ): Promise<Date | null> {
   const [rows] = await db.execute<RowDataPacket[]>(
-    'SELECT lastGatherAt FROM `character` WHERE id = ?',
+    "SELECT lastGatherAt FROM `character` WHERE id = ?",
     [characterId],
   );
 
   if (rows.length === 0) {
-    throw new Error('Character not found.');
+    throw new Error("Character not found.");
   }
 
   const value = rows[0].lastGatherAt as Date | null;
@@ -152,8 +152,8 @@ export async function updateLastGatherAt(
   characterId: number,
   when: Date,
 ): Promise<void> {
-  await db.execute(
-    'UPDATE `character` SET lastGatherAt = ? WHERE id = ?',
-    [when, characterId],
-  );
+  await db.execute("UPDATE `character` SET lastGatherAt = ? WHERE id = ?", [
+    when,
+    characterId,
+  ]);
 }

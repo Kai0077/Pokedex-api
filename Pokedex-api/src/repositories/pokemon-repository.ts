@@ -1,23 +1,25 @@
 // src/repositories/pokemon-repository.ts
-import { db } from '../db/connection.js';
-import type { RowDataPacket, ResultSetHeader } from 'mysql2';
+import { db } from "../db/connection.js";
+import type { RowDataPacket, ResultSetHeader } from "mysql2";
 
 export async function getPokemonRowById(id: number) {
-  const query = 'SELECT * FROM pokemon WHERE id = ?';
+  const query = "SELECT * FROM pokemon WHERE id = ?";
   const [rows] = await db.query<RowDataPacket[]>(query, [id]);
   return rows[0] ?? null;
 }
 
-export async function insertOrUpdatePokemonBatch(rows: {
-  id: number;
-  name: string;
-  types: string;
-  hp: number;
-  attack: number;
-  defence: number;
-  spriteUrl: string;
-  spriteOfficialUrl: string;
-}[]): Promise<void> {
+export async function insertOrUpdatePokemonBatch(
+  rows: {
+    id: number;
+    name: string;
+    types: string;
+    hp: number;
+    attack: number;
+    defence: number;
+    spriteUrl: string;
+    spriteOfficialUrl: string;
+  }[],
+): Promise<void> {
   if (rows.length === 0) return;
 
   const query = `
@@ -53,7 +55,7 @@ export async function linkPokemonToCharacter(
   pokemonId: number,
 ) {
   await db.execute<ResultSetHeader>(
-    'INSERT IGNORE INTO character_pokemon (characterId, pokemonId) VALUES (?, ?)',
+    "INSERT IGNORE INTO character_pokemon (characterId, pokemonId) VALUES (?, ?)",
     [characterId, pokemonId],
   );
 }
