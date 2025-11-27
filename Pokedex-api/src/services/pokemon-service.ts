@@ -1,7 +1,11 @@
-import { db } from "../db/connection.js";
-import { Pokemon, type TType } from "../models/Pokemon.js";
-import type { PokeApiResponse } from "../types/index.js";
-import type { ResultSetHeader, RowDataPacket } from "mysql2";
+// src/services/pokemon-service.ts
+import { Pokemon, type TType } from '../models/Pokemon.js';
+import type { PokeApiResponse } from '../types/index.js';
+import {
+  getPokemonRowById,
+  insertOrUpdatePokemonBatch,
+  linkPokemonToCharacter,
+} from '../repositories/pokemon-repository.js';
 
 export class PokemonService {
   private readonly baseUrl = process.env.POKE_API_BASE_URL;
@@ -10,12 +14,8 @@ export class PokemonService {
    * Get a single Pokemon from the DB by ID
    */
   async getPokemonById(id: number): Promise<Pokemon | null> {
-    const query = "SELECT * FROM pokemon WHERE id = ?";
-    const [rows] = await db.query<RowDataPacket[]>(query, [id]);
-
-    if (rows.length === 0) return null;
-
-    const row = rows[0];
+    const row = await getPokemonRowById(id);
+    if (!row) return null;
 
     return new Pokemon(
       row.id,
@@ -77,37 +77,23 @@ export class PokemonService {
   async savePokemonBatch(pokemons: Pokemon[]): Promise<void> {
     if (pokemons.length === 0) return;
 
-    const query = `
-      INSERT INTO pokemon 
-      (id, name, types, hp, attack, defence, spriteUrl, spriteOfficialUrl) 
-      VALUES ? 
-      ON DUPLICATE KEY UPDATE
-      name = VALUES(name), 
-      types = VALUES(types), 
-      hp = VALUES(hp), 
-      attack = VALUES(attack), 
-      defence = VALUES(defence), 
-      spriteUrl = VALUES(spriteUrl), 
-      spriteOfficialUrl = VALUES(spriteOfficialUrl)
-    `;
-
-    const values = pokemons.map((p) => [
-      p.id,
-      p.name,
-      p.types,
-      p.hp,
-      p.attack,
-      p.defence,
-      p.spriteUrl,
-      p.spriteOfficialUrl,
-    ]);
+    const rows = pokemons.map((p) => ({
+      id: p.id,
+      name: p.name,
+      types: p.types,
+      hp: p.hp,
+      attack: p.attack,
+      defence: p.defence,
+      spriteUrl: p.spriteUrl,
+      spriteOfficialUrl: p.spriteOfficialUrl,
+    }));
 
     try {
-      await db.query(query, [values]);
+      await insertOrUpdatePokemonBatch(rows);
       console.log(`Saved ${pokemons.length} pokemon to database.`);
     } catch (error) {
-      console.error("Database save error:", error);
-      throw new Error("Failed to save pokemon batch");
+      console.error('Database save error:', error);
+      throw new Error('Failed to save pokemon batch');
     }
   }
 
@@ -116,35 +102,37 @@ export class PokemonService {
    */
   private mapApiToDomain(data: PokeApiResponse): Pokemon {
     // 1. Get primary type
-    const primaryTypeStr = data.types[0]?.type.name || "unknown";
+    const primaryTypeStr = data.types[0]?.type.name || 'unknown';
 
     // 2. Ensure it is a valid TType
-    const validTypes = [
-      "normal",
-      "fighting",
-      "flying",
-      "poison",
-      "ground",
-      "rock",
-      "bug",
-      "ghost",
-      "steel",
-      "fire",
-      "water",
-      "grass",
-      "electric",
-      "psychic",
-      "ice",
-      "dragon",
-      "dark",
-      "fairy",
-      "stellar",
-      "unknown",
+    const validTypes: TType[] = [
+      'normal',
+      'fighting',
+      'flying',
+      'poison',
+      'ground',
+      'rock',
+      'bug',
+      'ghost',
+      'steel',
+      'fire',
+      'water',
+      'grass',
+      'electric',
+      'psychic',
+      'ice',
+      'dragon',
+      'dark',
+      'fairy',
+      'stellar',
+      'unknown',
     ];
 
-    const finalType: TType = validTypes.includes(primaryTypeStr)
+    const finalType: TType = validTypes.includes(
+      primaryTypeStr as TType,
+    )
       ? (primaryTypeStr as TType)
-      : "unknown";
+      : 'unknown';
 
     // 3. Extract Stats
     const getStat = (name: string) =>
@@ -154,20 +142,17 @@ export class PokemonService {
       data.id,
       data.name,
       finalType,
-      getStat("hp"),
-      getStat("attack"),
-      getStat("defense"),
-      data.sprites.front_default || "",
-      data.sprites.other["official-artwork"].front_default || "",
+      getStat('hp'),
+      getStat('attack'),
+      getStat('defense'),
+      data.sprites.front_default || '',
+      data.sprites.other['official-artwork'].front_default || '',
     );
   }
 
   async savePokemonToCharacter(characterId: number, pokemons: Pokemon[]) {
     for (const pokemon of pokemons) {
-      await db.execute<ResultSetHeader>(
-        "INSERT IGNORE INTO character_pokemon (characterId, pokemonId) VALUES (?, ?)",
-        [characterId, pokemon.id],
-      );
+      await linkPokemonToCharacter(characterId, pokemon.id);
     }
   }
 }

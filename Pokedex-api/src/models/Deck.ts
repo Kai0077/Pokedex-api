@@ -1,12 +1,12 @@
 export class Deck {
   #id: number;
-  #name: string;
+  #name!: string;
   #characterId: number;
 
   constructor(id: number, name: string, characterId: number) {
     this.#id = id;
-    this.#name = name;
     this.#characterId = characterId;
+    this.name = name; 
   }
 
   get id(): number {

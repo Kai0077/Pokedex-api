@@ -1,51 +1,46 @@
-import { db } from "../db/connection.js";
+// src/services/deck-service.ts
 import type { CreateDeckDTO } from "../types/deck.js";
-import type { RowDataPacket, ResultSetHeader } from "mysql2";
+import {
+  validateCreateDeckDTO,
+  validateUpdateDeckDTO,
+} from "../validation/deck-validation.js";
+import {
+  characterExistsById,
+  getOwnedPokemonForCharacterSubset,
+  insertDeck,
+  insertDeckPokemon,
+  findDeckById,
+  updateDeckName,
+  clearDeckPokemon,
+  deleteDeckById,
+  deckExistsById,
+} from "../repositories/deck-repository.js";
 
 export class DeckService {
+  // ---------------------------------------------------------
+  // CREATE DECK
+  // ---------------------------------------------------------
   static async createDeck(characterId: number, data: CreateDeckDTO) {
-    const { name, pokemonIds } = data;
+    const { name, pokemonIds } = validateCreateDeckDTO(data);
 
-    if (pokemonIds.length !== 5) {
-      throw new Error("A deck must contain exactly 5 pokemon.");
-    }
-
-    const [charRows] = await db.execute<RowDataPacket[]>(
-      "SELECT id FROM `character` WHERE id = ?",
-      [characterId],
-    );
-
-    if (charRows.length === 0) {
+    const charExists = await characterExistsById(characterId);
+    if (!charExists) {
       throw new Error("Character not found.");
     }
 
-    const pokemonIdList = pokemonIds.join(",");
-
-    const [ownedRows] = await db.execute<RowDataPacket[]>(
-      `SELECT pokemonId
-      FROM character_pokemon
-      WHERE characterId = ?
-      AND FIND_IN_SET(pokemonId, ?)
-      `,
-      [characterId, pokemonIdList],
+    const ownedRows = await getOwnedPokemonForCharacterSubset(
+      characterId,
+      pokemonIds,
     );
 
     if (ownedRows.length !== pokemonIds.length) {
       throw new Error("Character does not own all selected Pokemon.");
     }
 
-    const [deckResult] = await db.execute<ResultSetHeader>(
-      "INSERT INTO deck (name, characterId) VALUES (?, ?)",
-      [name, characterId],
-    );
-
-    const deckId = deckResult.insertId;
+    const deckId = await insertDeck(name, characterId);
 
     for (const pokemonId of pokemonIds) {
-      await db.execute(
-        "INSERT INTO pokemon_deck (deckId, pokemonId) VALUES (?, ?)",
-        [deckId, pokemonId],
-      );
+      await insertDeckPokemon(deckId, pokemonId);
     }
 
     return {
@@ -55,51 +50,36 @@ export class DeckService {
     };
   }
 
+  // ---------------------------------------------------------
+  // UPDATE DECK
+  // ---------------------------------------------------------
   static async updateDeck(
     deckId: number,
     data: { name: string; pokemonIds: number[] },
   ) {
-    const { name, pokemonIds } = data;
+    const { name, pokemonIds } = validateUpdateDeckDTO(data);
 
-    if (!name || typeof name !== "string") {
-      throw new Error("Deck name is required.");
-    }
-
-    if (!pokemonIds || pokemonIds.length !== 5) {
-      throw new Error("A deck must contain exactly 5 Pokemon.");
-    }
-
-    const [deckRows] = await db.execute<RowDataPacket[]>(
-      "SELECT id, characterId FROM deck WHERE id = ?",
-      [deckId],
-    );
-
-    if (deckRows.length === 0) {
+    const deckRow = await findDeckById(deckId);
+    if (!deckRow) {
       throw new Error("Deck not found.");
     }
 
-    const characterId = deckRows[0].characterId;
+    const characterId = deckRow.characterId as number;
 
-    const pokemonList = pokemonIds.join(",");
-
-    const [ownedRows] = await db.execute<RowDataPacket[]>(
-      "SELECT pokemonId FROM character_pokemon WHERE characterId = ? AND FIND_IN_SET(pokemonId, ?)",
-      [characterId, pokemonList],
+    const ownedRows = await getOwnedPokemonForCharacterSubset(
+      characterId,
+      pokemonIds,
     );
 
     if (ownedRows.length !== pokemonIds.length) {
       throw new Error("Character does not own all selected Pokemon.");
     }
 
-    await db.execute("UPDATE deck SET name = ? WHERE id = ?", [name, deckId]);
-
-    await db.execute("DELETE FROM pokemon_deck WHERE deckId = ?", [deckId]);
+    await updateDeckName(deckId, name);
+    await clearDeckPokemon(deckId);
 
     for (const pokemonId of pokemonIds) {
-      await db.execute(
-        "INSERT INTO pokemon_deck (deckId, pokemonId) VALUES (?, ?)",
-        [deckId, pokemonId],
-      );
+      await insertDeckPokemon(deckId, pokemonId);
     }
 
     return {
@@ -109,19 +89,17 @@ export class DeckService {
     };
   }
 
+  // ---------------------------------------------------------
+  // DELETE DECK
+  // ---------------------------------------------------------
   static async deleteDeck(deckId: number) {
-    const [deckRows] = await db.execute<RowDataPacket[]>(
-      "SELECT id FROM deck WHERE id = ?",
-      [deckId],
-    );
-
-    if (deckRows.length === 0) {
+    const exists = await deckExistsById(deckId);
+    if (!exists) {
       throw new Error("Deck not found.");
     }
 
-    await db.execute("DELETE FROM pokemon_deck WHERE deckId = ?", [deckId]);
-
-    await db.execute("DELETE FROM deck WHERE id = ?", [deckId]);
+    await clearDeckPokemon(deckId);
+    await deleteDeckById(deckId);
 
     return { message: "Deck deleted successfully", deckId };
   }
