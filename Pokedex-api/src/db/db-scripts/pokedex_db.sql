@@ -31,11 +31,12 @@ CREATE TABLE IF NOT EXISTS pokemon (
 --  (backticked because "character" is also a SQL keyword)
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS `character` (
-  id         INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  firstname  VARCHAR(45) NOT NULL,
-  lastname   VARCHAR(45) NOT NULL,
-  age        TINYINT UNSIGNED NOT NULL,
-  gender     ENUM('male', 'female', 'other') NOT NULL,
+  id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  firstname     VARCHAR(45) NOT NULL,
+  lastname      VARCHAR(45) NOT NULL,
+  age           TINYINT UNSIGNED NOT NULL,
+  gender        ENUM('male', 'female', 'other') NOT NULL,
+  lastGatherAt  DATETIME NULL,               -- NEW: last time character gathered Pokémon
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
@@ -52,7 +53,7 @@ CREATE TABLE IF NOT EXISTS deck (
     FOREIGN KEY (characterId)
     REFERENCES `character`(id)
     ON DELETE CASCADE
-    ON UPDATE CASCADEfirstname
+    ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 -- ==========================================================

@@ -6,6 +6,8 @@ import {
   insertOrUpdatePokemonBatch,
   linkPokemonToCharacter,
 } from '../repositories/pokemon-repository.js';
+import { validateGatherAllowed } from '../validation/gather-validation.js';
+import { getLastGatherAt, updateLastGatherAt } from '../repositories/character-repository.js';
 
 export class PokemonService {
   private readonly baseUrl = process.env.POKE_API_BASE_URL;
@@ -154,5 +156,36 @@ export class PokemonService {
     for (const pokemon of pokemons) {
       await linkPokemonToCharacter(characterId, pokemon.id);
     }
+  }
+
+  /**
+   * Full gather flow with cooldown:
+   * - check lastGatherAt
+   * - fetch random Pokemon
+   * - save to DB
+   * - link to character
+   * - update lastGatherAt
+   */
+  async gatherForCharacter(
+    characterId: number,
+    count = 10,
+  ): Promise<Pokemon[]> {
+    const now = new Date();
+
+    const lastGatherAt = await getLastGatherAt(characterId);
+    validateGatherAllowed(lastGatherAt, now);
+
+    const pokemonInstances = await this.fetchRandomPokemon(count);
+
+    if (pokemonInstances.length === 0) {
+      throw new Error('No pokemon could be fetched from API');
+    }
+
+    await this.savePokemonBatch(pokemonInstances);
+    await this.savePokemonToCharacter(characterId, pokemonInstances);
+
+    await updateLastGatherAt(characterId, now);
+
+    return pokemonInstances;
   }
 }

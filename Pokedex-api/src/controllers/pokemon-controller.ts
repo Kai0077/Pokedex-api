@@ -1,6 +1,7 @@
 import type { Context } from "hono";
 import { PokemonService } from "../services/pokemon-service.js";
 import type { PokemonData } from "../types/index.js";
+import { GATHER_COOLDOWN_SECONDS } from '../validation/gather-validation.js';
 
 export class PokemonController {
   private pokemonService: PokemonService;
@@ -11,28 +12,17 @@ export class PokemonController {
 
   seedDatabase = async (c: Context) => {
     try {
-      const characterId = Number(c.req.param("id"));
+      const characterId = Number(c.req.param('id'));
 
       if (isNaN(characterId)) {
-        return c.json({ error: "Invalid characterId" }, 400);
+        return c.json({ error: 'Invalid characterId' }, 400);
       }
 
-      // 1. Fetch
-      const pokemonInstances = await this.pokemonService.fetchRandomPokemon(10);
+      const now = new Date();
 
-      if (pokemonInstances.length === 0) {
-        return c.json({ error: "No pokemon could be fetched from API" }, 502);
-      }
+      const pokemonInstances =
+        await this.pokemonService.gatherForCharacter(characterId, 10);
 
-      // 2. Save
-      await this.pokemonService.savePokemonBatch(pokemonInstances);
-
-      await this.pokemonService.savePokemonToCharacter(
-        characterId,
-        pokemonInstances,
-      );
-
-      // 3. Map Domain Objects to plain JSON response
       const responseData: PokemonData[] = pokemonInstances.map((p) => ({
         id: p.id,
         name: p.name,
@@ -44,23 +34,31 @@ export class PokemonController {
         spriteOfficialUrl: p.spriteOfficialUrl,
       }));
 
+      const nextGatherAt = new Date(
+        now.getTime() + GATHER_COOLDOWN_SECONDS * 1000,
+      );
+
       return c.json(
         {
           message: `Success! 10 random Pokémon assigned to character #${characterId}.`,
           characterId,
           count: responseData.length,
+          lastGatherAt: now.toISOString(),
+          nextGatherAt: nextGatherAt.toISOString(),
           data: responseData,
         },
         200,
       );
     } catch (error) {
-      console.error("Seed error:", error);
+      console.error('Seed error:', error);
       return c.json(
         {
-          error: "Failed to seed database",
-          details: error instanceof Error ? error.message : "Unknown error",
+          error:
+            error instanceof Error
+              ? error.message
+              : 'Failed to seed database',
         },
-        500,
+        400,
       );
     }
   };

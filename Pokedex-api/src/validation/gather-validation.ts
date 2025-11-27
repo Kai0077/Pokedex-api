@@ -1,0 +1,26 @@
+export const GATHER_COOLDOWN_SECONDS = 3600;
+
+/**
+ * Throws if gather is NOT allowed.
+ * Returns void if gather is allowed.
+ */
+export function validateGatherAllowed(
+  lastGatherAt: Date | null,
+  now: Date,
+): void {
+  if (!lastGatherAt) {
+    // If you want "first gather always allowed", just return here.
+    // If you want to treat missing as invalid, throw instead.
+    return;
+  }
+
+  const diffSeconds = (now.getTime() - lastGatherAt.getTime()) / 1000;
+
+  if (diffSeconds < 0) {
+    throw new Error('Invalid last gather timestamp');
+  }
+
+  if (diffSeconds < GATHER_COOLDOWN_SECONDS) {
+    throw new Error('You must wait 60 minutes before gathering again.');
+  }
+}
