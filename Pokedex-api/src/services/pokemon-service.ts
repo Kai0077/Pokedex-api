@@ -1,7 +1,16 @@
-import { db } from "../db/connection.js";
+// src/services/pokemon-service.ts
 import { Pokemon, type TType } from "../models/Pokemon.js";
 import type { PokeApiResponse } from "../types/index.js";
-import type { ResultSetHeader, RowDataPacket } from "mysql2";
+import {
+  getPokemonRowById,
+  insertOrUpdatePokemonBatch,
+  linkPokemonToCharacter,
+} from "../repositories/pokemon-repository.js";
+import { validateGatherAllowed } from "../validation/gather-validation.js";
+import {
+  getLastGatherAt,
+  updateLastGatherAt,
+} from "../repositories/character-repository.js";
 
 export class PokemonService {
   private readonly baseUrl = process.env.POKE_API_BASE_URL;
@@ -10,12 +19,8 @@ export class PokemonService {
    * Get a single Pokemon from the DB by ID
    */
   async getPokemonById(id: number): Promise<Pokemon | null> {
-    const query = "SELECT * FROM pokemon WHERE id = ?";
-    const [rows] = await db.query<RowDataPacket[]>(query, [id]);
-
-    if (rows.length === 0) return null;
-
-    const row = rows[0];
+    const row = await getPokemonRowById(id);
+    if (!row) return null;
 
     return new Pokemon(
       row.id,
@@ -77,33 +82,19 @@ export class PokemonService {
   async savePokemonBatch(pokemons: Pokemon[]): Promise<void> {
     if (pokemons.length === 0) return;
 
-    const query = `
-      INSERT INTO pokemon 
-      (id, name, types, hp, attack, defence, spriteUrl, spriteOfficialUrl) 
-      VALUES ? 
-      ON DUPLICATE KEY UPDATE
-      name = VALUES(name), 
-      types = VALUES(types), 
-      hp = VALUES(hp), 
-      attack = VALUES(attack), 
-      defence = VALUES(defence), 
-      spriteUrl = VALUES(spriteUrl), 
-      spriteOfficialUrl = VALUES(spriteOfficialUrl)
-    `;
-
-    const values = pokemons.map((p) => [
-      p.id,
-      p.name,
-      p.types,
-      p.hp,
-      p.attack,
-      p.defence,
-      p.spriteUrl,
-      p.spriteOfficialUrl,
-    ]);
+    const rows = pokemons.map((p) => ({
+      id: p.id,
+      name: p.name,
+      types: p.types,
+      hp: p.hp,
+      attack: p.attack,
+      defence: p.defence,
+      spriteUrl: p.spriteUrl,
+      spriteOfficialUrl: p.spriteOfficialUrl,
+    }));
 
     try {
-      await db.query(query, [values]);
+      await insertOrUpdatePokemonBatch(rows);
       console.log(`Saved ${pokemons.length} pokemon to database.`);
     } catch (error) {
       console.error("Database save error:", error);
@@ -119,7 +110,7 @@ export class PokemonService {
     const primaryTypeStr = data.types[0]?.type.name || "unknown";
 
     // 2. Ensure it is a valid TType
-    const validTypes = [
+    const validTypes: TType[] = [
       "normal",
       "fighting",
       "flying",
@@ -142,7 +133,7 @@ export class PokemonService {
       "unknown",
     ];
 
-    const finalType: TType = validTypes.includes(primaryTypeStr)
+    const finalType: TType = validTypes.includes(primaryTypeStr as TType)
       ? (primaryTypeStr as TType)
       : "unknown";
 
@@ -164,10 +155,38 @@ export class PokemonService {
 
   async savePokemonToCharacter(characterId: number, pokemons: Pokemon[]) {
     for (const pokemon of pokemons) {
-      await db.execute<ResultSetHeader>(
-        "INSERT IGNORE INTO character_pokemon (characterId, pokemonId) VALUES (?, ?)",
-        [characterId, pokemon.id],
-      );
+      await linkPokemonToCharacter(characterId, pokemon.id);
     }
+  }
+
+  /**
+   * Full gather flow with cooldown:
+   * - check lastGatherAt
+   * - fetch random Pokemon
+   * - save to DB
+   * - link to character
+   * - update lastGatherAt
+   */
+  async gatherForCharacter(
+    characterId: number,
+    count = 10,
+  ): Promise<Pokemon[]> {
+    const now = new Date();
+
+    const lastGatherAt = await getLastGatherAt(characterId);
+    validateGatherAllowed(lastGatherAt, now);
+
+    const pokemonInstances = await this.fetchRandomPokemon(count);
+
+    if (pokemonInstances.length === 0) {
+      throw new Error("No pokemon could be fetched from API");
+    }
+
+    await this.savePokemonBatch(pokemonInstances);
+    await this.savePokemonToCharacter(characterId, pokemonInstances);
+
+    await updateLastGatherAt(characterId, now);
+
+    return pokemonInstances;
   }
 }
