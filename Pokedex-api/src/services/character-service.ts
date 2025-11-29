@@ -1,4 +1,3 @@
-// src/services/character-service.ts
 import { Character } from "../models/Character.js";
 import type { CreateCharacterDTO } from "../types/character.js";
 import { validateCreateCharacterDTO } from "../validation/character-validation.js";
@@ -19,26 +18,24 @@ export class CharacterService {
   // CREATE CHARACTER
   // ---------------------------------------------------------
   static async createCharacter(data: CreateCharacterDTO) {
-    // 1. pure validation
     const { firstName, lastName, age, gender, starter } =
       validateCreateCharacterDTO(data);
 
-    // 2. ensure starters exist
+    // ensure starters exist
     await this.ensureStarterPokemonExist();
 
-    // 3. create character in DB
+    // create character in DB
     const characterId = await insertCharacter(firstName, lastName, age, gender);
 
-    // 4. get starter pokémon
+    // get starter pokemon
     const starterPokemon = await findPokemonByName(starter.toLowerCase());
     if (!starterPokemon) {
       throw new Error("Starter Pokemon not found in database.");
     }
 
-    // 5. link starter to character
+    // add starter to character
     await addPokemonToCharacter(characterId, starterPokemon.id);
 
-    // 6. domain model (validates again)
     const character = new Character(
       characterId,
       firstName,

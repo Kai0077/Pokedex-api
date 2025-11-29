@@ -1,4 +1,3 @@
-// src/repositories/pokemon-repository.ts
 import { db } from "../db/connection.js";
 import type { RowDataPacket, ResultSetHeader } from "mysql2";
 

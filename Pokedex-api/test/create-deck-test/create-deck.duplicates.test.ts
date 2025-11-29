@@ -34,11 +34,11 @@ function runCase(
 }
 
 describe("CreateDeckDTO – Duplicate pokemons (B18–B19)", () => {
-  it("B18: has duplicates [1, 2, 3, 2, 5] -> invalid", () => {
+  it("B17: has duplicates [1, 2, 3, 2, 5] -> invalid", () => {
     runCase({ pokemonIds: [1, 2, 3, 2, 5] }, false, /duplicate pokemon/i);
   });
 
-  it("B19: no duplicates [1, 2, 3, 4, 5] -> valid", () => {
+  it("B18: no duplicates [1, 2, 3, 4, 5] -> valid", () => {
     runCase({ pokemonIds: [1, 2, 3, 4, 5] }, true);
   });
 });

@@ -9,8 +9,6 @@ export function validateGatherAllowed(
   now: Date,
 ): void {
   if (!lastGatherAt) {
-    // If you want "first gather always allowed", just return here.
-    // If you want to treat missing as invalid, throw instead.
     return;
   }
 

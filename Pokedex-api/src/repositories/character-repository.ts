@@ -1,4 +1,3 @@
-// src/repositories/character-repository.ts
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { db } from "../db/connection.js";
 

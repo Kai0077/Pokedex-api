@@ -1,4 +1,3 @@
-// src/validation/character-validation.ts
 import type { CreateCharacterDTO } from "../types/character.js";
 import type { TGender } from "../models/Character.js";
 
@@ -91,8 +90,7 @@ export function validateStarter(starter: string): TStarter {
 }
 
 /**
- * Full DTO validation – this is what you use in CharacterService.createCharacter.
- * Super easy to unit test with your black-box table.
+ * Create Character DTO validation
  */
 export function validateCreateCharacterDTO(data: CreateCharacterDTO): {
   firstName: string;

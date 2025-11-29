@@ -1,4 +1,3 @@
-// src/validation/deck-validation.ts
 import type { CreateDeckDTO } from "../types/deck.js";
 
 const REQUIRED_CARD_COUNT = 5;

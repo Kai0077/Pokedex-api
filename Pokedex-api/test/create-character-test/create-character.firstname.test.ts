@@ -52,27 +52,23 @@ describe("CreateCharacterDTO – Firstname partition (A1–A11)", () => {
     runCase({ firstName: "Mikk" }, true);
   });
 
-  it("A6: Firstname 3–45 characters ('Mikkel') -> valid", () => {
-    runCase({ firstName: "Mikkel" }, true);
-  });
-
-  it("A7: Firstname 25 characters -> valid", () => {
+  it("A6: Firstname 25 characters -> valid", () => {
     runCase({ firstName: "M".repeat(25) }, true);
   });
 
-  it("A8: Firstname 44 characters -> valid", () => {
+  it("A7: Firstname 44 characters -> valid", () => {
     runCase({ firstName: "M".repeat(44) }, true);
   });
 
-  it("A9: Firstname 45 characters -> valid upper boundary", () => {
+  it("A8: Firstname 45 characters -> valid upper boundary", () => {
     runCase({ firstName: "M".repeat(45) }, true);
   });
 
-  it("A10: Firstname 46 characters -> invalid (too long)", () => {
+  it("A9: Firstname 46 characters -> invalid (too long)", () => {
     runCase({ firstName: "M".repeat(46) }, false, /first name/i);
   });
 
-  it("A11: Firstname > 45 characters -> invalid", () => {
+  it("A10: Firstname > 45 characters -> invalid", () => {
     runCase({ firstName: "M".repeat(60) }, false, /first name/i);
   });
 });

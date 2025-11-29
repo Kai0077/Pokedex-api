@@ -57,7 +57,6 @@ describe("CreateCharacterDTO – Starter Pokemon partition (A39–A46)", () => {
   });
 
   it('A45: User tries to select more than one starter ["Charmander", "Pikachu"] -> invalid', () => {
-    // we pass an array to DTO, validation should still reject it
     runCase(
       { starter: ["Charmander", "Pikachu"] as any },
       false,

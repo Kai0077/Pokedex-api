@@ -34,7 +34,7 @@ function runCase(
 }
 
 describe("CreateDeckDTO – Amount of pokemons (B12–B17)", () => {
-  it("B12: amount = 0 -> invalid", () => {
+  it("B11: amount = 0 -> invalid", () => {
     runCase({ pokemonIds: [] }, false, /exactly 5 pokemon/i);
   });
 

@@ -54,27 +54,23 @@ describe("CreateDeckDTO – Deck name partition (B1–B11)", () => {
     runCase({ name: "AlphaA" }, true);
   });
 
-  it("B6: Deckname 5–45 characters -> valid", () => {
-    runCase({ name: "AlphaAlphaAlphaAlphaAlphaAlpha" }, true);
-  });
-
-  it("B7: Deckname 25 characters -> valid", () => {
+  it("B6: Deckname 25 characters -> valid", () => {
     runCase({ name: "A".repeat(25) }, true);
   });
 
-  it("B8: Deckname 44 characters -> valid", () => {
+  it("B7: Deckname 44 characters -> valid", () => {
     runCase({ name: "A".repeat(44) }, true);
   });
 
-  it("B9: Deckname 45 characters -> valid upper boundary", () => {
+  it("B8: Deckname 45 characters -> valid upper boundary", () => {
     runCase({ name: "A".repeat(45) }, true);
   });
 
-  it("B10: Deckname 46 characters -> invalid (too long)", () => {
+  it("B9: Deckname 46 characters -> invalid (too long)", () => {
     runCase({ name: "A".repeat(46) }, false, /too long/i);
   });
 
-  it("B11: Deckname > 45 characters -> invalid", () => {
+  it("B10: Deckname > 45 characters -> invalid", () => {
     runCase({ name: "A".repeat(60) }, false, /too long/i);
   });
 });

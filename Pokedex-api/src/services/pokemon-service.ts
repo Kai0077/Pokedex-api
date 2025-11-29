@@ -1,4 +1,3 @@
-// src/services/pokemon-service.ts
 import { Pokemon, type TType } from "../models/Pokemon.js";
 import type { PokeApiResponse } from "../types/index.js";
 import {
@@ -42,7 +41,7 @@ export class PokemonService {
     const usedIds = new Set<number>();
 
     while (usedIds.size < count) {
-      // Gen random ID between 1 and 1025 (current max)
+      // Random ID between 1 and 1025 (current max)
       const randomId = Math.floor(Math.random() * 1025) + 1;
 
       if (!usedIds.has(randomId)) {
@@ -106,10 +105,10 @@ export class PokemonService {
    * Maps API response to your Domain Model
    */
   private mapApiToDomain(data: PokeApiResponse): Pokemon {
-    // 1. Get primary type
+    // Get primary type
     const primaryTypeStr = data.types[0]?.type.name || "unknown";
 
-    // 2. Ensure it is a valid TType
+    // Ensure it is a valid TType
     const validTypes: TType[] = [
       "normal",
       "fighting",
@@ -137,7 +136,7 @@ export class PokemonService {
       ? (primaryTypeStr as TType)
       : "unknown";
 
-    // 3. Extract Stats
+    // Extract Stats
     const getStat = (name: string) =>
       data.stats.find((s) => s.stat.name === name)?.base_stat || 0;
 
@@ -164,7 +163,7 @@ export class PokemonService {
    * - check lastGatherAt
    * - fetch random Pokemon
    * - save to DB
-   * - link to character
+   * - add to character
    * - update lastGatherAt
    */
   async gatherForCharacter(

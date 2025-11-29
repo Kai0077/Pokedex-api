@@ -1,4 +1,3 @@
-// src/models/Character.ts
 export type TGender = "male" | "female" | "other";
 
 export class Character {
@@ -16,8 +15,6 @@ export class Character {
     gender: TGender,
   ) {
     this.#id = id;
-
-    // use setters so validation always runs
     this.firstName = firstName;
     this.lastName = lastName;
     this.age = age;
