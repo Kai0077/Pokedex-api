@@ -28,3 +28,13 @@ lerna-debug.log*
 
 # misc
 .DS_Store
+Thumbs.db
+
+# test coverage and tooling
+coverage/
+.vitest/
+.nyc_output/
+
+# coverage files
+*.lcov
+*.lcov.info
