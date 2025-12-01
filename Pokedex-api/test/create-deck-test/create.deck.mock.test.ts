@@ -1,233 +1,209 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import * as deckRepo from "../../src/repositories/deck-repository.js";
 import { DeckService } from "../../src/services/deck-service.js";
+import * as repo from "../../src/repositories/deck-repository.js";
 
-// Only the repository layer is mocked:
-vi.mock("../../src/repositories/deck-repository.js", () => ({
-  characterExistsById: vi.fn(),
-  getOwnedPokemonForCharacterSubset: vi.fn(),
-  insertDeck: vi.fn(),
-  insertDeckPokemon: vi.fn(),
-  findDeckById: vi.fn(),
-  updateDeckName: vi.fn(),
-  clearDeckPokemon: vi.fn(),
-  deleteDeckById: vi.fn(),
-  deckExistsById: vi.fn(),
+// Turn the whole repo module into mocks
+vi.mock("../../src/repositories/deck-repository.js");
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+// CHARACTER IDS
+const VALID_CHARACTER_ID = 1;
+const INVALID_CHARACTER_ID = 999;
+
+// DECK NAMES
+const VALID_DECK_NAME = "My First Deck";
+const TOO_SHORT_DECK_NAME = "Abc";
+const EMPTY_DECK_NAME = "   ";
+const NON_STRING_DECK_NAME: any = 123;
+
+// POKEMON SETS
+const VALID_POKEMON_AMOUNT = [1, 4, 7, 25, 52];
+const TOO_FEW_POKEMON_AMOUNT = [1, 2, 3, 4];
+const TOO_MANY_POKEMON_AMOUNT = [1, 2, 3, 4, 5, 6];
+const NOT_ARRAY_POKEMON_AMOUNT: any = "not-an-array";
+const DUPLICATES_OF_POKEMON = [1, 2, 2, 3, 4];
+const POKEMON_WITH_NAN = [1, "abc" as any, 3, 4, 5];
+
+// Ownership sets
+const OWNED_POKEMON_ROWS = VALID_POKEMON_AMOUNT.map((id) => ({
+  pokemonId: id,
 }));
+const PARTIALLY_OWNED_ROWS = [
+  { pokemonId: 1 },
+  { pokemonId: 2 },
+  { pokemonId: 3 },
+  { pokemonId: 4 },
+];
 
-describe("DeckService.createDeck (with real validation, mocked repo)", () => {
-  const mockedRepo = deckRepo as unknown as {
-    characterExistsById: ReturnType<typeof vi.fn>;
-    getOwnedPokemonForCharacterSubset: ReturnType<typeof vi.fn>;
-    insertDeck: ReturnType<typeof vi.fn>;
-    insertDeckPokemon: ReturnType<typeof vi.fn>;
-  };
+// ERROR MESSAGE REGEX PATTERNS
+const ERROR_CHARACTER_NOT_FOUND = /character not found/i;
+const ERROR_NOT_OWNED = /does not own all selected pokemon/i;
+const ERROR_NAME = /deck name/i;
+const ERROR_DECK_SIZE = /exactly 5 pokemon/i;
+const ERROR_POKEMON_NAN = /must be numbers/i;
+const ERROR_DUPLICATE = /duplicate pokemon/i;
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
+// TESTS
+describe("DeckService.createDeck", () => {
   // HAPPY PATH
   it("creates a deck when character exists, owns all 5 Pokémon, and DTO is valid", async () => {
-    const characterId = 1;
-    const dto = {
-      name: "My First Deck",
-      pokemonIds: [1, 4, 7, 25, 52],
-    };
+    // Arrange
+    vi.spyOn(repo, "characterExistsById").mockResolvedValue(true);
+    vi.spyOn(repo, "getOwnedPokemonForCharacterSubset").mockResolvedValue(
+      OWNED_POKEMON_ROWS as any,
+    );
+    vi.spyOn(repo, "insertDeck").mockResolvedValue(123 as any);
+    vi.spyOn(repo, "insertDeckPokemon").mockResolvedValue(undefined);
 
-    mockedRepo.characterExistsById.mockResolvedValue(true);
-    mockedRepo.getOwnedPokemonForCharacterSubset.mockResolvedValue([
-      { pokemonId: 1 },
-      { pokemonId: 4 },
-      { pokemonId: 7 },
-      { pokemonId: 25 },
-      { pokemonId: 52 },
-    ]);
-    mockedRepo.insertDeck.mockResolvedValue(123);
-    mockedRepo.insertDeckPokemon.mockResolvedValue(undefined);
-
-    const result = await DeckService.createDeck(characterId, dto);
-
-    // Returned object from service
-    expect(result).toEqual({
-      deckId: 123,
-      name: "My First Deck",
-      pokemonIds: [1, 4, 7, 25, 52],
+    // Act
+    const result = await DeckService.createDeck(VALID_CHARACTER_ID, {
+      name: VALID_DECK_NAME,
+      pokemonIds: VALID_POKEMON_AMOUNT,
     });
 
-    // Repository calls
-    expect(mockedRepo.characterExistsById).toHaveBeenCalledWith(characterId);
-    expect(mockedRepo.getOwnedPokemonForCharacterSubset).toHaveBeenCalledWith(
-      characterId,
-      [1, 4, 7, 25, 52],
-    );
-    expect(mockedRepo.insertDeck).toHaveBeenCalledWith(
-      "My First Deck",
-      characterId,
-    );
+    // Assert – return value
+    expect(result).toEqual({
+      deckId: 123,
+      name: VALID_DECK_NAME,
+      pokemonIds: VALID_POKEMON_AMOUNT,
+    });
 
-    expect(mockedRepo.insertDeckPokemon).toHaveBeenCalledTimes(5);
-    expect(mockedRepo.insertDeckPokemon).toHaveBeenNthCalledWith(1, 123, 1);
-    expect(mockedRepo.insertDeckPokemon).toHaveBeenNthCalledWith(2, 123, 4);
-    expect(mockedRepo.insertDeckPokemon).toHaveBeenNthCalledWith(3, 123, 7);
-    expect(mockedRepo.insertDeckPokemon).toHaveBeenNthCalledWith(4, 123, 25);
-    expect(mockedRepo.insertDeckPokemon).toHaveBeenNthCalledWith(5, 123, 52);
+    // Assert – repo calls
+    expect(repo.characterExistsById).toHaveBeenCalledWith(VALID_CHARACTER_ID);
+    expect(repo.getOwnedPokemonForCharacterSubset).toHaveBeenCalledWith(
+      VALID_CHARACTER_ID,
+      VALID_POKEMON_AMOUNT,
+    );
+    expect(repo.insertDeck).toHaveBeenCalledWith(
+      VALID_DECK_NAME,
+      VALID_CHARACTER_ID,
+    );
+    expect(repo.insertDeckPokemon).toHaveBeenCalledTimes(5);
   });
 
   // CHARACTER / OWNERSHIP ERRORS
-  it("throws 'Character not found.' if character does not exist", async () => {
-    const characterId = 999;
-    const dto = {
-      name: "Ghost Deck",
-      pokemonIds: [1, 2, 3, 4, 5],
-    };
+  it("throws if character does not exist", async () => {
+    vi.spyOn(repo, "characterExistsById").mockResolvedValue(false);
 
-    mockedRepo.characterExistsById.mockResolvedValue(false);
+    await expect(
+      DeckService.createDeck(INVALID_CHARACTER_ID, {
+        name: VALID_DECK_NAME,
+        pokemonIds: VALID_POKEMON_AMOUNT,
+      }),
+    ).rejects.toThrow(ERROR_CHARACTER_NOT_FOUND);
 
-    await expect(DeckService.createDeck(characterId, dto)).rejects.toThrowError(
-      "Character not found.",
-    );
-
-    expect(mockedRepo.getOwnedPokemonForCharacterSubset).not.toHaveBeenCalled();
-    expect(mockedRepo.insertDeck).not.toHaveBeenCalled();
-    expect(mockedRepo.insertDeckPokemon).not.toHaveBeenCalled();
+    expect(repo.getOwnedPokemonForCharacterSubset).not.toHaveBeenCalled();
+    expect(repo.insertDeck).not.toHaveBeenCalled();
+    expect(repo.insertDeckPokemon).not.toHaveBeenCalled();
   });
 
   it("throws if character does not own all 5 selected Pokémon", async () => {
-    const characterId = 1;
-    const dto = {
-      name: "Cheater Deck",
-      pokemonIds: [1, 2, 3, 4, 999], // 999 is not owned
-    };
-
-    mockedRepo.characterExistsById.mockResolvedValue(true);
-
-    // Only 4 owned rows returned instead of 5
-    mockedRepo.getOwnedPokemonForCharacterSubset.mockResolvedValue([
-      { pokemonId: 1 },
-      { pokemonId: 2 },
-      { pokemonId: 3 },
-      { pokemonId: 4 },
-    ]);
-
-    await expect(DeckService.createDeck(characterId, dto)).rejects.toThrowError(
-      "Character does not own all selected Pokemon.",
+    vi.spyOn(repo, "characterExistsById").mockResolvedValue(true);
+    vi.spyOn(repo, "getOwnedPokemonForCharacterSubset").mockResolvedValue(
+      PARTIALLY_OWNED_ROWS as any,
     );
 
-    expect(mockedRepo.insertDeck).not.toHaveBeenCalled();
-    expect(mockedRepo.insertDeckPokemon).not.toHaveBeenCalled();
+    await expect(
+      DeckService.createDeck(VALID_CHARACTER_ID, {
+        name: VALID_DECK_NAME,
+        pokemonIds: [1, 2, 3, 4, 999],
+      }),
+    ).rejects.toThrow(ERROR_NOT_OWNED);
+
+    expect(repo.insertDeck).not.toHaveBeenCalled();
+    expect(repo.insertDeckPokemon).not.toHaveBeenCalled();
   });
 
   // VALIDATION: NAME
-  it("throws 'Deck name is too short' if name < 5 chars", async () => {
-    const characterId = 1;
-    const dto = {
-      name: "Abc", // too short
-      pokemonIds: [1, 2, 3, 4, 5],
-    };
+  it("throws if name is shorter than 5 characters", async () => {
+    await expect(
+      DeckService.createDeck(VALID_CHARACTER_ID, {
+        name: TOO_SHORT_DECK_NAME,
+        pokemonIds: VALID_POKEMON_AMOUNT,
+      }),
+    ).rejects.toThrow(ERROR_NAME);
 
-    await expect(DeckService.createDeck(characterId, dto)).rejects.toThrowError(
-      "Deck name is too short",
-    );
-
-    // Validation should fail before any repo calls:
-    expect(mockedRepo.characterExistsById).not.toHaveBeenCalled();
-    expect(mockedRepo.getOwnedPokemonForCharacterSubset).not.toHaveBeenCalled();
-    expect(mockedRepo.insertDeck).not.toHaveBeenCalled();
-    expect(mockedRepo.insertDeckPokemon).not.toHaveBeenCalled();
+    expect(repo.characterExistsById).not.toHaveBeenCalled();
   });
 
-  it("throws 'Deck name cannot be empty or null' if name is only whitespace", async () => {
-    const characterId = 1;
-    const dto = {
-      name: "   ", // trimmed length 0
-      pokemonIds: [1, 2, 3, 4, 5],
-    };
+  it("throws if name is only whitespace", async () => {
+    await expect(
+      DeckService.createDeck(VALID_CHARACTER_ID, {
+        name: EMPTY_DECK_NAME,
+        pokemonIds: VALID_POKEMON_AMOUNT,
+      }),
+    ).rejects.toThrow(ERROR_NAME);
 
-    await expect(DeckService.createDeck(characterId, dto)).rejects.toThrowError(
-      "Deck name cannot be empty or null",
-    );
-
-    expect(mockedRepo.characterExistsById).not.toHaveBeenCalled();
+    expect(repo.characterExistsById).not.toHaveBeenCalled();
   });
 
-  it("throws 'Deck name is required.' if name is not a string", async () => {
-    const characterId = 1;
-    const dto: any = {
-      name: 123, // not a string
-      pokemonIds: [1, 2, 3, 4, 5],
-    };
+  it("throws if name is not a string", async () => {
+    await expect(
+      DeckService.createDeck(VALID_CHARACTER_ID, {
+        name: NON_STRING_DECK_NAME,
+        pokemonIds: VALID_POKEMON_AMOUNT,
+      }),
+    ).rejects.toThrow(ERROR_NAME);
 
-    await expect(DeckService.createDeck(characterId, dto)).rejects.toThrowError(
-      "Deck name is required.",
-    );
-
-    expect(mockedRepo.characterExistsById).not.toHaveBeenCalled();
+    expect(repo.characterExistsById).not.toHaveBeenCalled();
   });
 
   // VALIDATION: POKEMON IDS
-  it("throws 'A deck must contain exactly 5 Pokemon.' if pokemonIds is not an array", async () => {
-    const characterId = 1;
-    const dto: any = {
-      name: "Valid Name",
-      pokemonIds: "not-an-array",
-    };
-
-    await expect(DeckService.createDeck(characterId, dto)).rejects.toThrowError(
-      "A deck must contain exactly 5 Pokemon.",
-    );
-
-    expect(mockedRepo.characterExistsById).not.toHaveBeenCalled();
-  });
-
-  it("throws 'A deck must contain exactly 5 Pokemon.' if there are not exactly 5 ids", async () => {
-    const characterId = 1;
-    const dtoTooFew = {
-      name: "Valid Name",
-      pokemonIds: [1, 2, 3, 4], // 4 only
-    };
-
+  it("throws if pokemonIds is not an array", async () => {
     await expect(
-      DeckService.createDeck(characterId, dtoTooFew),
-    ).rejects.toThrowError("A deck must contain exactly 5 Pokemon.");
+      DeckService.createDeck(VALID_CHARACTER_ID, {
+        name: VALID_DECK_NAME,
+        pokemonIds: NOT_ARRAY_POKEMON_AMOUNT,
+      }),
+    ).rejects.toThrow(ERROR_DECK_SIZE);
 
-    const dtoTooMany = {
-      name: "Valid Name",
-      pokemonIds: [1, 2, 3, 4, 5, 6], // 6
-    };
+    expect(repo.characterExistsById).not.toHaveBeenCalled();
+  });
 
+  it("throws if there are not exactly 5 Pokémon - too few", async () => {
     await expect(
-      DeckService.createDeck(characterId, dtoTooMany),
-    ).rejects.toThrowError("A deck must contain exactly 5 Pokemon.");
+      DeckService.createDeck(VALID_CHARACTER_ID, {
+        name: VALID_DECK_NAME,
+        pokemonIds: TOO_FEW_POKEMON_AMOUNT,
+      }),
+    ).rejects.toThrow(ERROR_DECK_SIZE);
 
-    expect(mockedRepo.characterExistsById).not.toHaveBeenCalled();
+    expect(repo.characterExistsById).not.toHaveBeenCalled();
   });
 
-  it("throws 'Pokemon IDs must be numbers.' if any id is NaN", async () => {
-    const characterId = 1;
-    const dto = {
-      name: "Valid Name",
-      pokemonIds: [1, "abc" as any, 3, 4, 5], // 'abc' → NaN after Number()
-    };
+  it("throws if there are not exactly 5 Pokémon - too many", async () => {
+    await expect(
+      DeckService.createDeck(VALID_CHARACTER_ID, {
+        name: VALID_DECK_NAME,
+        pokemonIds: TOO_MANY_POKEMON_AMOUNT,
+      }),
+    ).rejects.toThrow(ERROR_DECK_SIZE);
 
-    await expect(DeckService.createDeck(characterId, dto)).rejects.toThrowError(
-      "Pokemon IDs must be numbers.",
-    );
-
-    expect(mockedRepo.characterExistsById).not.toHaveBeenCalled();
+    expect(repo.characterExistsById).not.toHaveBeenCalled();
   });
 
-  it("throws 'Deck cannot contain duplicate Pokemon.' if ids are duplicated", async () => {
-    const characterId = 1;
-    const dto = {
-      name: "Valid Name",
-      pokemonIds: [1, 2, 2, 3, 4], // duplicate 2
-    };
+  it("throws if any Pokémon id is NaN", async () => {
+    await expect(
+      DeckService.createDeck(VALID_CHARACTER_ID, {
+        name: VALID_DECK_NAME,
+        pokemonIds: POKEMON_WITH_NAN,
+      }),
+    ).rejects.toThrow(ERROR_POKEMON_NAN);
 
-    await expect(DeckService.createDeck(characterId, dto)).rejects.toThrowError(
-      "Deck cannot contain duplicate Pokemon.",
-    );
+    expect(repo.characterExistsById).not.toHaveBeenCalled();
+  });
 
-    expect(mockedRepo.characterExistsById).not.toHaveBeenCalled();
+  it("throws if deck contains duplicate Pokémon", async () => {
+    await expect(
+      DeckService.createDeck(VALID_CHARACTER_ID, {
+        name: VALID_DECK_NAME,
+        pokemonIds: DUPLICATES_OF_POKEMON,
+      }),
+    ).rejects.toThrow(ERROR_DUPLICATE);
+
+    expect(repo.characterExistsById).not.toHaveBeenCalled();
   });
 });
