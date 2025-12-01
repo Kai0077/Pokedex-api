@@ -1,4 +1,5 @@
 import type { CreateDeckDTO } from "../types/deck.js";
+import { calculateDeckRank } from "./deck-ranking-service.js";
 import {
   validateCreateDeckDTO,
   validateUpdateDeckDTO,
@@ -13,6 +14,7 @@ import {
   clearDeckPokemon,
   deleteDeckById,
   deckExistsById,
+  getDeckAttackDefenceSum,
 } from "../repositories/deck-repository.js";
 
 export class DeckService {
@@ -42,10 +44,18 @@ export class DeckService {
       await insertDeckPokemon(deckId, pokemonId);
     }
 
+    const total = await getDeckAttackDefenceSum(deckId);
+    if (total === null) {
+      throw new Error("Deck has no Pokémon.");
+    }
+    const rank = calculateDeckRank(total);
+
     return {
       deckId,
       name,
       pokemonIds,
+      total,
+      rank,
     };
   }
 
@@ -80,11 +90,18 @@ export class DeckService {
     for (const pokemonId of pokemonIds) {
       await insertDeckPokemon(deckId, pokemonId);
     }
+    const total = await getDeckAttackDefenceSum(deckId);
+    if (total === null) {
+      throw new Error("Deck has no Pokémon.");
+    }
+    const rank = calculateDeckRank(total);
 
     return {
       deckId,
       name,
       pokemonIds,
+      total,
+      rank,
     };
   }
 
@@ -101,5 +118,25 @@ export class DeckService {
     await deleteDeckById(deckId);
 
     return { message: "Deck deleted successfully", deckId };
+  }
+
+  static async getDeckRanking(deckId: number) {
+    const exists = await deckExistsById(deckId);
+    if (!exists) {
+      throw new Error("Deck not found.");
+    }
+
+    const total = await getDeckAttackDefenceSum(deckId);
+    if (total === null) {
+      throw new Error("Deck has no Pokémon.");
+    }
+
+    const rank = calculateDeckRank(total);
+
+    return {
+      deckId,
+      total, // total attack+defence for the 5 Pokémon
+      rank, // "D" | "C" | "B" | "A" | "S"
+    };
   }
 }
