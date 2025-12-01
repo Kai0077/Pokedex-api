@@ -75,3 +75,37 @@ export async function deckExistsById(deckId: number): Promise<boolean> {
   );
   return deckRows.length > 0;
 }
+
+export async function getDeckAttackDefenceSum(
+  deckId: number,
+): Promise<number | null> {
+  const [rows] = await db.execute<RowDataPacket[]>(
+    `
+    SELECT SUM(p.attack + p.defence) AS total
+    FROM pokemon_deck pd
+    JOIN pokemon p ON p.id = pd.pokemonId
+    WHERE pd.deckId = ?
+    `,
+    [deckId],
+  );
+
+  if (rows.length === 0 || rows[0].total === null) {
+    return null;
+  }
+
+  return Number(rows[0].total);
+}
+
+export async function getPokemonStatsByIds(
+  pokemonIds: number[],
+): Promise<{ id: number; attack: number; defence: number }[]> {
+  if (pokemonIds.length === 0) return [];
+
+  const placeholders = pokemonIds.map(() => "?").join(",");
+  const [rows] = await db.execute<RowDataPacket[]>(
+    `SELECT id, attack, defence FROM pokemon WHERE id IN (${placeholders})`,
+    pokemonIds,
+  );
+
+  return rows as any;
+}
