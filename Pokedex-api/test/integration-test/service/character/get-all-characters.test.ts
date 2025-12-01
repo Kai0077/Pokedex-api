@@ -1,24 +1,28 @@
 import { describe, it, expect } from "vitest";
 import { CharacterService } from "../../../../src/services/character-service.js";
 
+// ====================================================================
+// TEST
+// ====================================================================
+
 describe("CharacterService.getAllCharacters", () => {
   // ---------------------------------------------------------
-  // RETURNS LIST OF CHARACTERS INCLUDING NEW ONES
+  // RETURNS A LIST OF EXISTING CHARACTERS
   // ---------------------------------------------------------
-  it("returns multiple characters after creating them", async () => {
+  it("returns multiple characters after creating new ones", async () => {
     await CharacterService.createCharacter({
-      firstName: "Hans",
-      lastName: "Hansen",
-      age: 22,
+      firstName: "Jonas",
+      lastName: "Mortensen",
+      age: 30,
       gender: "male",
       starter: "Bulbasaur",
     });
 
     await CharacterService.createCharacter({
-      firstName: "Peter",
-      lastName: "Petersen",
-      age: 30,
-      gender: "male",
+      firstName: "Laura",
+      lastName: "Hvidt",
+      age: 26,
+      gender: "female",
       starter: "Charmander",
     });
 

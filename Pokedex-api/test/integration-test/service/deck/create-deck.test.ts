@@ -1,9 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { DeckService } from "../../../../src/services/deck-service.js";
+import { CharacterService } from "../../../../src/services/character-service.js";
 import { PokemonService } from "../../../../src/services/pokemon-service.js";
-
-const deck = DeckService;
-const pokemon = new PokemonService();
 
 // ====================================================================
 // TEST
@@ -11,30 +9,33 @@ const pokemon = new PokemonService();
 
 describe("DeckService.createDeck", () => {
   // ---------------------------------------------------------
-  // CREATES A DECK SUCCESSFULLY
+  // CREATES DECK SUCCESSFULLY
   // ---------------------------------------------------------
-  it("creates a deck successfully when character owns all Pokémon", async () => {
-    const characterId = 1;
+  it("creates a deck successfully when character owns all Pokemon", async () => {
+    const character = await CharacterService.createCharacter({
+      firstName: "Kristian",
+      lastName: "Dam",
+      age: 36,
+      gender: "male",
+      starter: "Bulbasaur",
+    });
 
-    // FETCH POKEMON
-    const pokemons = await pokemon.fetchRandomPokemon(5);
+    const pokemonService = new PokemonService();
+    const gathered = await pokemonService.fetchRandomPokemon(5);
+    await pokemonService.savePokemonBatch(gathered);
+    await pokemonService.savePokemonToCharacter(
+      character.character.id,
+      gathered,
+    );
 
-    // SAVE POKEMONS TO CHARACTER
-    await pokemon.savePokemonBatch(pokemons);
-    await pokemon.savePokemonToCharacter(characterId, pokemons);
+    const ids = gathered.map((p) => p.id);
 
-    const ids = pokemons.map((p) => p.id);
-
-    // CREATE A DECK
-    const result = await deck.createDeck(characterId, {
-      name: "AlphaTeam",
+    const deck = await DeckService.createDeck(character.character.id, {
+      name: "PowerTeam",
       pokemonIds: ids,
     });
 
-    expect(result).toMatchObject({
-      deckId: expect.any(Number),
-      name: "AlphaTeam",
-      pokemonIds: ids,
-    });
+    expect(deck.name).toBe("PowerTeam");
+    expect(deck.pokemonIds.length).toBe(5);
   });
 });

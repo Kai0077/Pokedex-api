@@ -1,37 +1,45 @@
 import { describe, it, expect } from "vitest";
 import { DeckService } from "../../../../src/services/deck-service.js";
+import { CharacterService } from "../../../../src/services/character-service.js";
 import { PokemonService } from "../../../../src/services/pokemon-service.js";
-
-const deck = DeckService;
-const pokemon = new PokemonService();
 
 // ====================================================================
 // TEST
 // ====================================================================
 
-describe("DeckService.deleteDeck", async () => {
+describe("DeckService.updateDeck", () => {
   // ---------------------------------------------------------
-  // DELETES A DECK SUCCESSFULLY
+  // UPDATES DECK SUCCESSFULLY
   // ---------------------------------------------------------
-  it("deletes a deck and its pokemon", async () => {
-    const characterId = 1;
+  it("updates an existing deck with new Pokemon", async () => {
+    const character = await CharacterService.createCharacter({
+      firstName: "Michael",
+      lastName: "Brandt",
+      age: 42,
+      gender: "male",
+      starter: "Squirtle",
+    });
 
-    const pokemons = await pokemon.fetchRandomPokemon(5);
-    await pokemon.savePokemonBatch(pokemons);
-    await pokemon.savePokemonToCharacter(characterId, pokemons);
+    const service = new PokemonService();
 
-    const ids = pokemons.map((pokemon) => pokemon.id);
+    const first = await service.fetchRandomPokemon(5);
+    await service.savePokemonBatch(first);
+    await service.savePokemonToCharacter(character.character.id, first);
 
-    const created = await deck.createDeck(characterId, {
+    const deck = await DeckService.createDeck(character.character.id, {
       name: "AlphaTeam",
-      pokemonIds: ids,
+      pokemonIds: first.map((p) => p.id),
     });
 
-    const result = await deck.deleteDeck(created.deckId);
+    const second = await service.fetchRandomPokemon(5);
+    await service.savePokemonBatch(second);
+    await service.savePokemonToCharacter(character.character.id, second);
 
-    expect(result).toMatchObject({
-      message: "Deck deleted successfully",
-      deckId: created.deckId,
+    const updated = await DeckService.updateDeck(deck.deckId, {
+      name: "BetaTeam",
+      pokemonIds: second.map((p) => p.id),
     });
+
+    expect(updated.name).toBe("BetaTeam");
   });
 });

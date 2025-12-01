@@ -1,11 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { CharacterService } from "../../../../src/services/character-service.js";
 
+// ====================================================================
+// TEST
+// ====================================================================
+
 describe("CharacterService.getCharacterPokemon", () => {
   // ---------------------------------------------------------
-  // RETURNS EMPTY LIST FOR NEW CHARACTER
+  // RETURNS THE STARTER POKEMON FOR A NEW CHARACTER
   // ---------------------------------------------------------
-  it("returns an empty list for a character with no pokemon", async () => {
+  it("returns the starter pokemon for a newly created character", async () => {
     const created = await CharacterService.createCharacter({
       firstName: "Hans",
       lastName: "Hansen",
@@ -20,5 +24,7 @@ describe("CharacterService.getCharacterPokemon", () => {
 
     expect(Array.isArray(rows)).toBe(true);
     expect(rows.length).toBeGreaterThanOrEqual(1);
+
+    expect(rows[0].id).toBe(created.starter.id);
   });
 });
