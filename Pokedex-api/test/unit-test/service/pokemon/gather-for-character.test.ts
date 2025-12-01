@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { PokemonService } from "../../../src/services/pokemon-service.js";
+import { PokemonService } from "../../../../src/services/pokemon-service.js";
 
-import * as characterRepo from "../../../src/repositories/character-repository.js";
-import * as pokemonRepo from "../../../src/repositories/pokemon-repository.js";
+import * as characterRepo from "../../../../src/repositories/character-repository.js";
+import * as pokemonRepo from "../../../../src/repositories/pokemon-repository.js";
 
-vi.mock("../../../src/repositories/pokemon-repository.js");
+vi.mock("../../../../src/repositories/character-repository.js");
+vi.mock("../../../../src/repositories/pokemon-repository.js");
 
 const POKEMON_ID = 1;
 const POKEMON_NAME = "Bulbasaur";

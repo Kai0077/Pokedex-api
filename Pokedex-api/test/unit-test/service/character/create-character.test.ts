@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CharacterService } from "../../../src/services/character-service.js";
-import * as repo from "../../../src/repositories/character-repository.js";
-import type { CreateCharacterDTO } from "../../../src/types/character.js";
+import { CharacterService } from "../../../../src/services/character-service.js";
+import * as repo from "../../../../src/repositories/character-repository.js";
+import type { CreateCharacterDTO } from "../../../../src/types/character.js";
 
-vi.mock("../../../src/repositories/character-repository.js");
+vi.mock("../../../../src/repositories/character-repository.js");
 (global as any).fetch = vi.fn();
 
 beforeEach(() => {
