@@ -1,27 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CharacterService } from "../../src/services/character-service.js";
-import * as repo from "../../src/repositories/character-repository.js";
-import type { CreateCharacterDTO } from "../../src/types/character.js";
+import { CharacterService } from "../../../src/services/character-service.js";
+import * as repo from "../../../src/repositories/character-repository.js";
+import type { CreateCharacterDTO } from "../../../src/types/character.js";
 
-vi.mock("../../src/repositories/character-repository.js");
+vi.mock("../../../src/repositories/character-repository.js");
 (global as any).fetch = vi.fn();
 
-// --------------------------------------------------
-// ERROR PATTERNS (only the ones we actually use)
-// --------------------------------------------------
-const ERROR_AGE_RANGE = /between 13 and 110/i;
-const ERROR_STARTER_NOT_FOUND = /starter pokemon not found in database/i;
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
-// --------------------------------------------------
-// TEST DATA CONSTANTS (similar style to deck test)
-// --------------------------------------------------
+// TEST AGE
 const VALID_AGE = 15;
 const TOO_YOUNG_AGE = 5;
 
+// POKEMON DATA
 const VALID_STARTER_NAME = "Bulbasaur";
 const VALID_STARTER_DB_NAME = "bulbasaur";
 const POKEMON_ID = 1;
-const POKEMON_NAME = "bulbasaur"; // lowercase because PokeAPI returns lowercase
+const POKEMON_NAME = "bulbasaur";
 const POKEMON_TYPE = "grass";
 const POKEMON_HP = 45;
 const POKEMON_ATTACK = 49;
@@ -52,17 +49,17 @@ const MOCK_STARTER_POKEMON_ROW = {
   spriteOfficialUrl: "http://img.com/official.png",
 };
 
-beforeEach(() => {
-  vi.clearAllMocks();
-});
+// ERROR MESSAGE REGEX PATTERNS
+const ERROR_AGE_RANGE = /between 13 and 110/i;
+const ERROR_STARTER_NOT_FOUND = /starter pokemon not found in database/i;
 
 // ====================================================================
-// CharacterService.createCharacter
+// TEST
 // ====================================================================
 
 describe("CharacterService.createCharacter", () => {
   // -------------------------------
-  // VALIDATION: AGE
+  // VALIDATION: AGE TOO YOUNG
   // -------------------------------
   it("throws validation error if age is below 13", async () => {
     const invalidDto: CreateCharacterDTO = {
@@ -76,40 +73,6 @@ describe("CharacterService.createCharacter", () => {
 
     expect(repo.insertCharacter).not.toHaveBeenCalled();
     expect(repo.findPokemonByName).not.toHaveBeenCalled();
-  });
-
-  // -------------------------------
-  // SUCCESS: STARTER ALREADY IN DB
-  // -------------------------------
-  it("creates character and links existing starter pokemon", async () => {
-    vi.spyOn(repo, "pokemonExistsById").mockResolvedValue(true);
-    vi.spyOn(repo, "insertCharacter").mockResolvedValue(100);
-    vi.spyOn(repo, "findPokemonByName").mockResolvedValue(
-      MOCK_STARTER_POKEMON_ROW as any,
-    );
-    vi.spyOn(repo, "addPokemonToCharacter").mockResolvedValue(undefined);
-
-    const result = await CharacterService.createCharacter(VALID_CHARACTER);
-
-    expect(result.character).toMatchObject({
-      id: 100,
-      firstName: "Ash",
-      lastName: "Ketchum",
-      age: VALID_AGE,
-      gender: "male",
-    });
-    expect(result.starter).toEqual(MOCK_STARTER_POKEMON_ROW);
-
-    expect(repo.pokemonExistsById).toHaveBeenCalledTimes(3);
-    expect(repo.insertCharacter).toHaveBeenCalledWith(
-      "Ash",
-      "Ketchum",
-      VALID_AGE,
-      "male",
-    );
-    expect(repo.findPokemonByName).toHaveBeenCalledWith(VALID_STARTER_DB_NAME);
-    expect(repo.addPokemonToCharacter).toHaveBeenCalledWith(100, 1);
-    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   // -------------------------------
@@ -170,5 +133,39 @@ describe("CharacterService.createCharacter", () => {
 
     expect(repo.insertCharacter).toHaveBeenCalled();
     expect(repo.addPokemonToCharacter).not.toHaveBeenCalled();
+  });
+
+  // -------------------------------
+  // SUCCESS: STARTER ALREADY IN DB
+  // -------------------------------
+  it("creates character and links existing starter pokemon", async () => {
+    vi.spyOn(repo, "pokemonExistsById").mockResolvedValue(true);
+    vi.spyOn(repo, "insertCharacter").mockResolvedValue(100);
+    vi.spyOn(repo, "findPokemonByName").mockResolvedValue(
+      MOCK_STARTER_POKEMON_ROW as any,
+    );
+    vi.spyOn(repo, "addPokemonToCharacter").mockResolvedValue(undefined);
+
+    const result = await CharacterService.createCharacter(VALID_CHARACTER);
+
+    expect(result.character).toMatchObject({
+      id: 100,
+      firstName: "Ash",
+      lastName: "Ketchum",
+      age: VALID_AGE,
+      gender: "male",
+    });
+    expect(result.starter).toEqual(MOCK_STARTER_POKEMON_ROW);
+
+    expect(repo.pokemonExistsById).toHaveBeenCalledTimes(3);
+    expect(repo.insertCharacter).toHaveBeenCalledWith(
+      "Ash",
+      "Ketchum",
+      VALID_AGE,
+      "male",
+    );
+    expect(repo.findPokemonByName).toHaveBeenCalledWith(VALID_STARTER_DB_NAME);
+    expect(repo.addPokemonToCharacter).toHaveBeenCalledWith(100, 1);
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 });
