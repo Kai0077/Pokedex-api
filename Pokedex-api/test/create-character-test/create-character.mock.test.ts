@@ -20,6 +20,18 @@ const TOO_YOUNG_AGE = 5;
 
 const VALID_STARTER_NAME = "Bulbasaur";
 const VALID_STARTER_DB_NAME = "bulbasaur";
+const POKEMON_ID = 1;
+const POKEMON_NAME = "bulbasaur"; // lowercase because PokeAPI returns lowercase
+const POKEMON_TYPE = "grass";
+const POKEMON_HP = 45;
+const POKEMON_ATTACK = 49;
+const POKEMON_DEFENCE = 49;
+
+const POKEMON_SPRITE_URL =
+  "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png";
+
+const POKEMON_SPRITE_OFFICIAL_URL =
+  "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png";
 
 const VALID_CHARACTER: CreateCharacterDTO = {
   firstName: "Ash",
@@ -58,9 +70,9 @@ describe("CharacterService.createCharacter", () => {
       age: TOO_YOUNG_AGE,
     };
 
-    await expect(
-      CharacterService.createCharacter(invalidDto),
-    ).rejects.toThrow(ERROR_AGE_RANGE);
+    await expect(CharacterService.createCharacter(invalidDto)).rejects.toThrow(
+      ERROR_AGE_RANGE,
+    );
 
     expect(repo.insertCharacter).not.toHaveBeenCalled();
     expect(repo.findPokemonByName).not.toHaveBeenCalled();
@@ -95,9 +107,7 @@ describe("CharacterService.createCharacter", () => {
       VALID_AGE,
       "male",
     );
-    expect(repo.findPokemonByName).toHaveBeenCalledWith(
-      VALID_STARTER_DB_NAME,
-    );
+    expect(repo.findPokemonByName).toHaveBeenCalledWith(VALID_STARTER_DB_NAME);
     expect(repo.addPokemonToCharacter).toHaveBeenCalledWith(100, 1);
     expect(global.fetch).not.toHaveBeenCalled();
   });
@@ -109,16 +119,21 @@ describe("CharacterService.createCharacter", () => {
     vi.spyOn(repo, "pokemonExistsById").mockResolvedValue(false);
 
     const mockApiResponse = {
-      name: "bulbasaur",
-      types: [{ type: { name: "grass" } }],
+      id: POKEMON_ID,
+      name: POKEMON_NAME,
+      types: [{ type: { name: POKEMON_TYPE } }],
       stats: [
-        { base_stat: 45 },
-        { base_stat: 49 },
-        { base_stat: 49 },
+        { base_stat: POKEMON_HP },
+        { base_stat: POKEMON_ATTACK },
+        { base_stat: POKEMON_DEFENCE },
       ],
       sprites: {
-        front_default: "url1",
-        other: { "official-artwork": { front_default: "url2" } },
+        front_default: POKEMON_SPRITE_URL,
+        other: {
+          "official-artwork": {
+            front_default: POKEMON_SPRITE_OFFICIAL_URL,
+          },
+        },
       },
     };
 

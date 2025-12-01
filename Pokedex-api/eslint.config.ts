@@ -70,4 +70,10 @@ export default [
       "no-useless-escape": "off", // Turns off the rule that prevents unnecessary escape characters
     },
   },
+  {
+    files: ["test/**/*.{ts,js}"],
+    rules: {
+      camelcase: "off",
+    },
+  },
 ];
