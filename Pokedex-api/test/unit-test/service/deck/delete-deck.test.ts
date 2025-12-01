@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { DeckService } from "../../../src/services/deck-service.js";
+import { DeckService } from "../../../../src/services/deck-service.js";
 
-import * as repo from "../../../src/repositories/deck-repository.js";
-vi.mock("../../src/repositories/deck-repository.js");
+import * as repo from "../../../../src/repositories/deck-repository.js";
+vi.mock("../../../src/repositories/deck-repository.js");
 
 beforeEach(() => {
   vi.clearAllMocks();

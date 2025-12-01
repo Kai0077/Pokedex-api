@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateCreateCharacterDTO } from "../../../src/validation/character-validation.js";
+import { validateCreateCharacterDTO } from "../../../../src/validation/character-validation.js";
 
 const baseValid = {
   firstName: "Mikkel",
