@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateCreateDeckDTO } from "../../src/validation/deck-validation.js";
+import { validateCreateDeckDTO } from "../../../src/validation/deck-validation.js";
 
 type TestDto = {
   name: any;
