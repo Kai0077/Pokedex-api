@@ -1,32 +1,36 @@
 import { describe, it, expect } from "vitest";
 import { PokemonService } from "../../../../src/services/pokemon-service.js";
 
-const service = new PokemonService();
-
 // ====================================================================
 // TEST
 // ====================================================================
 
 describe("PokemonService.getPokemonById", () => {
   // ---------------------------------------------------------
-  // RETURNS NULL IF POKEMON NOT FOUND
+  // RETURNS A POKEMON WHEN SAVED IN DB
   // ---------------------------------------------------------
-  it("returns null when pokemon does not exist", async () => {
-    const result = await service.getPokemonById(999);
-    expect(result).toBeNull();
+  it("returns a pokemon when saved in DB", async () => {
+    const service = new PokemonService();
+
+    // FETCH AND SAVE POKEMON
+    const [poke] = await service.fetchRandomPokemon(1);
+    await service.savePokemonBatch([poke]);
+
+    const found = await service.getPokemonById(poke.id);
+
+    expect(found).not.toBeNull();
+    expect(found?.id).toBe(poke.id);
+    expect(found?.name).toBe(poke.name);
   });
 
   // ---------------------------------------------------------
-  // RETURNS A POKEMON
+  // RETURNS NULL WHEN POKEMON DOES NOT EXIST
   // ---------------------------------------------------------
-  it("returns a pokemon from the database when found", async () => {
-    const pokemon = (await service.fetchRandomPokemon(1))[0];
-    await service.savePokemonBatch([pokemon]);
+  it("returns null for non-existing pokemon", async () => {
+    const service = new PokemonService();
 
-    const found = await service.getPokemonById(pokemon.id);
+    const result = await service.getPokemonById(-99999);
 
-    expect(found).not.toBeNull();
-    expect(found?.id).toBe(pokemon.id);
-    expect(found?.name).toBeTypeOf("string");
+    expect(result).toBeNull();
   });
 });
