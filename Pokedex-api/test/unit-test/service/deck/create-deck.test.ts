@@ -41,6 +41,8 @@ const ERROR_NAME = /deck name/i;
 const ERROR_DECK_SIZE = /exactly 5 pokemon/i;
 const ERROR_POKEMON_NAN = /numbers/i;
 const ERROR_DUPLICATE = /duplicate pokemon/i;
+const TOTAL_STATS = 600;
+const EXPECTED_RANK = "A";
 
 // ====================================================================
 // TEST
@@ -208,25 +210,29 @@ describe("DeckService.createDeck", () => {
     vi.spyOn(repo, "getOwnedPokemonForCharacterSubset").mockResolvedValue(
       OWNED_POKEMON_ROWS as any,
     );
-
+  
     vi.spyOn(repo, "insertDeck").mockResolvedValue(123 as any);
     vi.spyOn(repo, "insertDeckPokemon").mockResolvedValue(undefined);
-
+    vi.spyOn(repo, "getDeckAttackDefenceSum").mockResolvedValue(TOTAL_STATS);
+  
     const result = await DeckService.createDeck(VALID_CHARACTER_ID, {
       name: VALID_DECK_NAME,
       pokemonIds: VALID_POKEMON_AMOUNT,
     });
-
+  
     expect(result).toEqual({
       deckId: 123,
       name: VALID_DECK_NAME,
       pokemonIds: VALID_POKEMON_AMOUNT,
+      total: TOTAL_STATS,
+      rank: EXPECTED_RANK,
     });
-
+  
     expect(repo.insertDeck).toHaveBeenCalledWith(
       VALID_DECK_NAME,
       VALID_CHARACTER_ID,
     );
     expect(repo.insertDeckPokemon).toHaveBeenCalledTimes(5);
+    expect(repo.getDeckAttackDefenceSum).toHaveBeenCalledWith(123);
   });
 });

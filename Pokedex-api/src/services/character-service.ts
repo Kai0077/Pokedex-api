@@ -10,6 +10,7 @@ import {
   getDecksForCharacterRows,
   pokemonExistsById,
   insertPokemonRow,
+  characterExists,
 } from "../repositories/character-repository.js";
 import { calculateDeckRank } from "./deck-ranking-service.js";
 
@@ -74,12 +75,16 @@ export class CharacterService {
   // GET ALL CHARACTER DECKS
   // ---------------------------------------------------------
   static async getDecksForCharacter(characterId: number) {
+    const exists = await characterExists(characterId);
+    if (!exists) {
+      throw new Error("Character not found.");
+    }
+
     const deckRows = await getDecksForCharacterRows(characterId);
 
     return deckRows.map((deck: any) => {
       const pokemon = deck.pokemon || [];
 
-      // ensure attack/defence exist
       const total = pokemon.reduce(
         (sum: number, p: any) =>
           sum + Number(p.attack ?? 0) + Number(p.defence ?? 0),
@@ -96,6 +101,7 @@ export class CharacterService {
       };
     });
   }
+  
   // ---------------------------------------------------------
   // INTERNAL: ENSURE STARTER POKEMON EXIST
   // ---------------------------------------------------------

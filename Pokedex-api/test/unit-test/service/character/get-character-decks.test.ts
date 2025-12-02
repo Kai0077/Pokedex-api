@@ -35,6 +35,7 @@ const CHARMANDER_SPRITE_URL = "https://example.com/charmander.png";
 const CHARMANDER_SPRITE_OFFICIAL_URL =
   "https://example.com/charmander-official.png";
 
+// rows coming from repository (no rank here)
 const MOCK_DECK_ROWS = [
   {
     deckId: DECK_1_ID,
@@ -70,6 +71,22 @@ const MOCK_DECK_ROWS = [
   },
 ];
 
+// For our single-pokémon decks, totals are small -> rank "D"
+const EXPECTED_DECKS = [
+  {
+    deckId: DECK_1_ID,
+    name: DECK_1_NAME,
+    rank: "D",
+    pokemon: MOCK_DECK_ROWS[0].pokemon,
+  },
+  {
+    deckId: DECK_2_ID,
+    name: DECK_2_NAME,
+    rank: "D",
+    pokemon: MOCK_DECK_ROWS[1].pokemon,
+  },
+];
+
 const ERROR_CHARACTER_NOT_FOUND = /character not found/i;
 
 beforeEach(() => {
@@ -94,7 +111,7 @@ describe("CharacterService.getDecksForCharacter", () => {
     expect(getDecksSpy).not.toHaveBeenCalled();
   });
 
-  it("returns decks for character when character exists", async () => {
+  it("returns decks for character when character exists (with rank)", async () => {
     vi.spyOn(repo, "characterExists").mockResolvedValue(true);
 
     const getDecksSpy = vi
@@ -105,6 +122,8 @@ describe("CharacterService.getDecksForCharacter", () => {
 
     expect(repo.characterExists).toHaveBeenCalledWith(CHARACTER_ID);
     expect(getDecksSpy).toHaveBeenCalledWith(CHARACTER_ID);
-    expect(result).toEqual(MOCK_DECK_ROWS);
+
+    // Now service adds 'rank', so we compare with EXPECTED_DECKS
+    expect(result).toEqual(EXPECTED_DECKS);
   });
 });

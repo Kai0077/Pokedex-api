@@ -38,6 +38,8 @@ const ERROR_NOT_OWNED = /does not own all selected pokemon/i;
 const ERROR_NAME = /deck name/i;
 const ERROR_DECK_SIZE = /exactly 5 pokemon/i;
 const ERROR_DUPLICATE = /duplicate pokemon/i;
+const TOTAL_STATS = 600;
+const EXPECTED_RANK = "A";
 
 // ====================================================================
 // TEST
@@ -193,31 +195,35 @@ describe("DeckService.updateDeck", () => {
       id: VALID_DECK_ID,
       characterId: DECK_OWNER_ID,
     } as any);
-
+  
     vi.spyOn(repo, "getOwnedPokemonForCharacterSubset").mockResolvedValue(
       OWNED_ROWS as any,
     );
-
+  
     vi.spyOn(repo, "updateDeckName").mockResolvedValue(undefined);
     vi.spyOn(repo, "clearDeckPokemon").mockResolvedValue(undefined);
     vi.spyOn(repo, "insertDeckPokemon").mockResolvedValue(undefined);
-
+    vi.spyOn(repo, "getDeckAttackDefenceSum").mockResolvedValue(TOTAL_STATS);
+  
     const result = await DeckService.updateDeck(VALID_DECK_ID, {
       name: VALID_DECK_NAME,
       pokemonIds: VALID_POKEMON_AMOUNT,
     });
-
+  
     expect(result).toEqual({
       deckId: VALID_DECK_ID,
       name: VALID_DECK_NAME,
       pokemonIds: VALID_POKEMON_AMOUNT,
+      total: TOTAL_STATS,
+      rank: EXPECTED_RANK,
     });
-
+  
     expect(repo.updateDeckName).toHaveBeenCalledWith(
       VALID_DECK_ID,
       VALID_DECK_NAME,
     );
     expect(repo.clearDeckPokemon).toHaveBeenCalledWith(VALID_DECK_ID);
     expect(repo.insertDeckPokemon).toHaveBeenCalledTimes(5);
+    expect(repo.getDeckAttackDefenceSum).toHaveBeenCalledWith(VALID_DECK_ID);
   });
 });
