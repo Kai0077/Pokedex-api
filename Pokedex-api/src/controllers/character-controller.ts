@@ -18,9 +18,15 @@ export const getCharacterPokemon = async (c: Context) => {
     return c.json({ error: "Invalid character ID" }, 400);
   }
 
-  const pokemon = await CharacterService.getCharacterPokemon(characterId);
-
-  return c.json(pokemon, 200);
+  try {
+    const pokemon = await CharacterService.getCharacterPokemon(characterId);
+    return c.json(pokemon, 200);
+  } catch (error) {
+    if (error instanceof Error && error.message === "Character not found.") {
+      return c.json({ error: error.message }, 404);
+    }
+    throw error;
+  }
 };
 
 export const getAllCharacters = async (c: Context) => {

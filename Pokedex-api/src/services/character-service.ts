@@ -61,6 +61,11 @@ export class CharacterService {
   // GET ALL POKEMON A CHARACTER OWNS
   // ---------------------------------------------------------
   static async getCharacterPokemon(characterId: number) {
+    const exists = await characterExists(characterId);
+    if (!exists) {
+      throw new Error("Character not found.");
+    }
+
     return getCharacterPokemonRows(characterId);
   }
 
