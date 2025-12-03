@@ -52,20 +52,6 @@ jobs:
     name: Run All Tests (unit and integration tests)
     runs-on: ubuntu-latest
 
-    services:
-      mysql:
-        image: mysql:8.0
-        ports:
-          - 3306:3306
-        env:
-          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-        options: >-
-          --health-cmd="mysqladmin ping -p${{ secrets.DB_PASSWORD }}"
-          --health-interval=5s
-          --health-timeout=2s
-          --health-retries=10
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -79,17 +65,32 @@ jobs:
         working-directory: ./Pokedex-api
         run: npm install
 
+      # ----------------------------
+      # START MYSQL
+      # ----------------------------
+      - name: Start MySQL container
+        run: |
+          docker run -d \
+            --name mysql \
+            -e MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }} \
+            -e MYSQL_DATABASE=${{ secrets.DB_NAME }} \
+            -p 3306:3306 \
+            mysql:8.0
+
       - name: Wait for MySQL
         run: |
-          until mysql -h 127.0.0.1 -u ${{ secrets.DB_USER }} -p${{ secrets.DB_PASSWORD }} -e "SELECT 1"; do
+          until mysql -h 127.0.0.1 -u root -p${{ secrets.DB_PASSWORD }} -e "SELECT 1"; do
             sleep 2
           done
 
+      # --------------------------
+      # RUN TESTS
+      # --------------------------
       - name: Run Tests
         working-directory: ./Pokedex-api
         env:
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_USER: ${{ secrets.DB_USER }}
+          DB_HOST: 127.0.0.1
+          DB_USER: root
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_NAME: ${{ secrets.DB_NAME }}
           POKE_API_BASE_URL: ${{ secrets.POKE_API_BASE_URL }}
