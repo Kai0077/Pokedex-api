@@ -77,6 +77,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, format, test]
 
+    environment: development
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
