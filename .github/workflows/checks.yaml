@@ -99,7 +99,7 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
-        run: 
+        run: |
           npx sonar-scanner \
             -Dsonar.projectKey=Kai0077_Pokedex-api \
             -Dsonar.organization=kait \
