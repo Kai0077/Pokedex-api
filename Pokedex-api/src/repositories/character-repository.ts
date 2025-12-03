@@ -1,11 +1,10 @@
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
 import { getDB } from "../db/connection.js";
 
-const db = getDB();
-
 export async function characterExistsById(
   characterId: number,
 ): Promise<boolean> {
+  const db = getDB();
   const [rows] = await db.execute<RowDataPacket[]>(
     "SELECT id FROM `character` WHERE id = ?",
     [characterId],
@@ -17,6 +16,7 @@ export async function getOwnedPokemonForCharacterSubset(
   characterId: number,
   pokemonIds: number[],
 ) {
+  const db = getDB();
   const pokemonIdList = pokemonIds.join(",");
 
   const [ownedRows] = await db.execute<RowDataPacket[]>(
@@ -36,6 +36,7 @@ export async function insertCharacter(
   age: number,
   gender: string,
 ): Promise<number> {
+  const db = getDB();
   const [result] = await db.execute<ResultSetHeader>(
     "INSERT INTO `character` (firstname, lastname, age, gender) VALUES (?, ?, ?, ?)",
     [firstName, lastName, age, gender],
@@ -45,6 +46,7 @@ export async function insertCharacter(
 }
 
 export async function findPokemonByName(name: string) {
+  const db = getDB();
   const [rows] = await db.execute<RowDataPacket[]>(
     "SELECT * FROM pokemon WHERE name = ? LIMIT 1",
     [name],
@@ -56,6 +58,7 @@ export async function addPokemonToCharacter(
   characterId: number,
   pokemonId: number,
 ) {
+  const db = getDB();
   await db.execute(
     "INSERT INTO character_pokemon (characterId, pokemonId) VALUES (?, ?)",
     [characterId, pokemonId],
@@ -63,6 +66,7 @@ export async function addPokemonToCharacter(
 }
 
 export async function getCharacterPokemonRows(characterId: number) {
+  const db = getDB();
   const [rows] = await db.execute<RowDataPacket[]>(
     `SELECT p.*
      FROM pokemon p
@@ -75,6 +79,7 @@ export async function getCharacterPokemonRows(characterId: number) {
 }
 
 export async function getAllCharactersRows() {
+  const db = getDB();
   const [rows] = await db.execute<RowDataPacket[]>(
     `
       SELECT
@@ -94,6 +99,7 @@ export async function getAllCharactersRows() {
 }
 
 export async function characterExists(characterId: number): Promise<boolean> {
+  const db = getDB();
   const [rows] = await db.execute<RowDataPacket[]>(
     "SELECT id FROM \`character\` WHERE id = ?",
     [characterId],
@@ -103,12 +109,14 @@ export async function characterExists(characterId: number): Promise<boolean> {
 }
 
 export async function getDecksForCharacterRows(characterId: number) {
+  const db = getDB();
   const [deckRows] = await db.execute<RowDataPacket[]>(
     "SELECT id AS deckId, name FROM deck WHERE characterId = ?",
     [characterId],
   );
 
   for (const deck of deckRows) {
+    const db = getDB();
     const [pokemonRows] = await db.execute<RowDataPacket[]>(
       `
       SELECT p.id, p.name, p.types, p.hp, p.attack, p.defence,
@@ -127,6 +135,7 @@ export async function getDecksForCharacterRows(characterId: number) {
 }
 
 export async function pokemonExistsById(id: number): Promise<boolean> {
+  const db = getDB();
   const [rows] = await db.execute<RowDataPacket[]>(
     "SELECT id FROM pokemon WHERE id = ? LIMIT 1",
     [id],
@@ -144,6 +153,7 @@ export async function insertPokemonRow(row: {
   spriteUrl: string;
   spriteOfficialUrl: string;
 }) {
+  const db = getDB();
   await db.execute(
     `INSERT INTO pokemon (id, name, types, hp, attack, defence, spriteUrl, spriteOfficialUrl)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -163,6 +173,7 @@ export async function insertPokemonRow(row: {
 export async function getLastGatherAt(
   characterId: number,
 ): Promise<Date | null> {
+  const db = getDB();
   const [rows] = await db.execute<RowDataPacket[]>(
     "SELECT lastGatherAt FROM `character` WHERE id = ?",
     [characterId],
@@ -180,6 +191,7 @@ export async function updateLastGatherAt(
   characterId: number,
   when: Date,
 ): Promise<void> {
+  const db = getDB();
   await db.execute("UPDATE `character` SET lastGatherAt = ? WHERE id = ?", [
     when,
     characterId,

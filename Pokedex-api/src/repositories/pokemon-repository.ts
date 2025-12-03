@@ -1,9 +1,8 @@
 import type { RowDataPacket, ResultSetHeader } from "mysql2";
 import { getDB } from "../db/connection.js";
 
-const db = getDB();
-
 export async function getPokemonRowById(id: number) {
+  const db = getDB();
   const query = "SELECT * FROM pokemon WHERE id = ?";
   const [rows] = await db.query<RowDataPacket[]>(query, [id]);
   return rows[0] ?? null;
@@ -21,6 +20,7 @@ export async function insertOrUpdatePokemonBatch(
     spriteOfficialUrl: string;
   }[],
 ): Promise<void> {
+  const db = getDB();
   if (rows.length === 0) return;
 
   const query = `
@@ -55,6 +55,7 @@ export async function linkPokemonToCharacter(
   characterId: number,
   pokemonId: number,
 ) {
+  const db = getDB();
   await db.execute<ResultSetHeader>(
     "INSERT IGNORE INTO character_pokemon (characterId, pokemonId) VALUES (?, ?)",
     [characterId, pokemonId],
@@ -64,6 +65,7 @@ export async function linkPokemonToCharacter(
 export async function getDeckAttackDefenceSum(
   deckId: number,
 ): Promise<number | null> {
+  const db = getDB();
   const [rows] = await db.execute<RowDataPacket[]>(
     `
     SELECT SUM(p.attack + p.defence) AS total
@@ -84,6 +86,7 @@ export async function getDeckAttackDefenceSum(
 export async function getPokemonStatsByIds(
   pokemonIds: number[],
 ): Promise<{ id: number; attack: number; defence: number }[]> {
+  const db = getDB();
   if (pokemonIds.length === 0) return [];
 
   const placeholders = pokemonIds.map(() => "?").join(",");

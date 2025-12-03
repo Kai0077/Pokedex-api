@@ -4,10 +4,7 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["test/**/*.test.ts"],
-    setupFiles: ["./testcontainers-setup.ts"],
+    globalSetup: ["./testcontainers-setup.ts"],
     testTimeout: 60000, // 1 min timeout
-    env: {
-      NODE_ENV: "test",
-    },
   },
 });
