@@ -195,21 +195,21 @@ describe("DeckService.updateDeck", () => {
       id: VALID_DECK_ID,
       characterId: DECK_OWNER_ID,
     } as any);
-  
+
     vi.spyOn(repo, "getOwnedPokemonForCharacterSubset").mockResolvedValue(
       OWNED_ROWS as any,
     );
-  
+
     vi.spyOn(repo, "updateDeckName").mockResolvedValue(undefined);
     vi.spyOn(repo, "clearDeckPokemon").mockResolvedValue(undefined);
     vi.spyOn(repo, "insertDeckPokemon").mockResolvedValue(undefined);
     vi.spyOn(repo, "getDeckAttackDefenceSum").mockResolvedValue(TOTAL_STATS);
-  
+
     const result = await DeckService.updateDeck(VALID_DECK_ID, {
       name: VALID_DECK_NAME,
       pokemonIds: VALID_POKEMON_AMOUNT,
     });
-  
+
     expect(result).toEqual({
       deckId: VALID_DECK_ID,
       name: VALID_DECK_NAME,
@@ -217,7 +217,7 @@ describe("DeckService.updateDeck", () => {
       total: TOTAL_STATS,
       rank: EXPECTED_RANK,
     });
-  
+
     expect(repo.updateDeckName).toHaveBeenCalledWith(
       VALID_DECK_ID,
       VALID_DECK_NAME,
