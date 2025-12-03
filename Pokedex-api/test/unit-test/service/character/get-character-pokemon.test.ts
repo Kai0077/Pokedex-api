@@ -6,7 +6,7 @@ vi.mock("../../../src/repositories/character-repository.js");
 
 // ============================
 // CONSTANTS
-// ============================
+// =============================
 
 const CHARACTER_ID = 10;
 
