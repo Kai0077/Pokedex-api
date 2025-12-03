@@ -1,8 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { DeckService } from "../../../../src/services/deck-service.js";
 
-import * as repo from "../../../../src/repositories/deck-repository.js";
+import * as deckRepo from "../../../../src/repositories/deck-repository.js";
+import * as characterRepo from "../../../../src/repositories/character-repository.js";
+import * as pokemonRepo from "../../../../src/repositories/pokemon-repository.js";
+
 vi.mock("../../../../src/repositories/deck-repository.js");
+vi.mock("../../../../src/repositories/character-repository.js");
+vi.mock("../../../../src/repositories/pokemon-repository.js");
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -50,7 +55,7 @@ describe("DeckService.updateDeck", () => {
   // DECK DOES NOT EXIST
   // -------------------------------
   it("throws if deck does not exist", async () => {
-    vi.spyOn(repo, "findDeckById").mockResolvedValue(null as any);
+    vi.spyOn(deckRepo, "findDeckById").mockResolvedValue(null as any);
 
     await expect(
       DeckService.updateDeck(INVALID_DECK_ID, {
@@ -172,12 +177,15 @@ describe("DeckService.updateDeck", () => {
   // OWNERSHIP: CHARACTER DOES NOT OWN POKEMON
   // ---------------------------------------------
   it("throws if character does not own all selected Pokémon", async () => {
-    vi.spyOn(repo, "findDeckById").mockResolvedValue({
+    vi.spyOn(deckRepo, "findDeckById").mockResolvedValue({
       id: VALID_DECK_ID,
       characterId: DECK_OWNER_ID,
     } as any);
 
-    vi.spyOn(repo, "getOwnedPokemonForCharacterSubset").mockResolvedValue([]);
+    vi.spyOn(
+      characterRepo,
+      "getOwnedPokemonForCharacterSubset",
+    ).mockResolvedValue([]);
 
     await expect(
       DeckService.updateDeck(VALID_DECK_ID, {
@@ -191,19 +199,22 @@ describe("DeckService.updateDeck", () => {
   // SUCCESSFUL UPDATE
   // ------------------------------------------------------------
   it("updates deck successfully when everything is valid", async () => {
-    vi.spyOn(repo, "findDeckById").mockResolvedValue({
+    vi.spyOn(deckRepo, "findDeckById").mockResolvedValue({
       id: VALID_DECK_ID,
       characterId: DECK_OWNER_ID,
     } as any);
 
-    vi.spyOn(repo, "getOwnedPokemonForCharacterSubset").mockResolvedValue(
-      OWNED_ROWS as any,
-    );
+    vi.spyOn(
+      characterRepo,
+      "getOwnedPokemonForCharacterSubset",
+    ).mockResolvedValue(OWNED_ROWS as any);
 
-    vi.spyOn(repo, "updateDeckName").mockResolvedValue(undefined);
-    vi.spyOn(repo, "clearDeckPokemon").mockResolvedValue(undefined);
-    vi.spyOn(repo, "insertDeckPokemon").mockResolvedValue(undefined);
-    vi.spyOn(repo, "getDeckAttackDefenceSum").mockResolvedValue(TOTAL_STATS);
+    vi.spyOn(deckRepo, "updateDeckName").mockResolvedValue(undefined);
+    vi.spyOn(deckRepo, "clearDeckPokemon").mockResolvedValue(undefined);
+    vi.spyOn(deckRepo, "insertDeckPokemon").mockResolvedValue(undefined);
+    vi.spyOn(pokemonRepo, "getDeckAttackDefenceSum").mockResolvedValue(
+      TOTAL_STATS,
+    );
 
     const result = await DeckService.updateDeck(VALID_DECK_ID, {
       name: VALID_DECK_NAME,
@@ -218,12 +229,14 @@ describe("DeckService.updateDeck", () => {
       rank: EXPECTED_RANK,
     });
 
-    expect(repo.updateDeckName).toHaveBeenCalledWith(
+    expect(deckRepo.updateDeckName).toHaveBeenCalledWith(
       VALID_DECK_ID,
       VALID_DECK_NAME,
     );
-    expect(repo.clearDeckPokemon).toHaveBeenCalledWith(VALID_DECK_ID);
-    expect(repo.insertDeckPokemon).toHaveBeenCalledTimes(5);
-    expect(repo.getDeckAttackDefenceSum).toHaveBeenCalledWith(VALID_DECK_ID);
+    expect(deckRepo.clearDeckPokemon).toHaveBeenCalledWith(VALID_DECK_ID);
+    expect(deckRepo.insertDeckPokemon).toHaveBeenCalledTimes(5);
+    expect(pokemonRepo.getDeckAttackDefenceSum).toHaveBeenCalledWith(
+      VALID_DECK_ID,
+    );
   });
 });

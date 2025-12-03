@@ -1,5 +1,34 @@
 import type { ResultSetHeader, RowDataPacket } from "mysql2";
-import { db } from "../db/connection.js";
+import { getDB } from "../db/connection.js";
+
+const db = getDB();
+
+export async function characterExistsById(
+  characterId: number,
+): Promise<boolean> {
+  const [rows] = await db.execute<RowDataPacket[]>(
+    "SELECT id FROM `character` WHERE id = ?",
+    [characterId],
+  );
+  return rows.length > 0;
+}
+
+export async function getOwnedPokemonForCharacterSubset(
+  characterId: number,
+  pokemonIds: number[],
+) {
+  const pokemonIdList = pokemonIds.join(",");
+
+  const [ownedRows] = await db.execute<RowDataPacket[]>(
+    `SELECT pokemonId
+     FROM character_pokemon
+     WHERE characterId = ?
+       AND FIND_IN_SET(pokemonId, ?)`,
+    [characterId, pokemonIdList],
+  );
+
+  return ownedRows;
+}
 
 export async function insertCharacter(
   firstName: string,

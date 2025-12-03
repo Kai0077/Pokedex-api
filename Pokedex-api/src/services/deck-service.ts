@@ -7,6 +7,8 @@ import {
 import {
   characterExistsById,
   getOwnedPokemonForCharacterSubset,
+} from "../repositories/character-repository.js";
+import {
   insertDeck,
   insertDeckPokemon,
   findDeckById,
@@ -14,8 +16,8 @@ import {
   clearDeckPokemon,
   deleteDeckById,
   deckExistsById,
-  getDeckAttackDefenceSum,
 } from "../repositories/deck-repository.js";
+import { getDeckAttackDefenceSum } from "../repositories/pokemon-repository.js";
 
 export class DeckService {
   // ---------------------------------------------------------

@@ -1,8 +1,13 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { DeckService } from "../../../../src/services/deck-service.js";
 
-import * as repo from "../../../../src/repositories/deck-repository.js";
+import * as deckRepo from "../../../../src/repositories/deck-repository.js";
+import * as characterRepo from "../../../../src/repositories/character-repository.js";
+import * as pokemonRepo from "../../../../src/repositories/pokemon-repository.js";
+
 vi.mock("../../../../src/repositories/deck-repository.js");
+vi.mock("../../../../src/repositories/character-repository.js");
+vi.mock("../../../../src/repositories/pokemon-repository.js");
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -53,7 +58,7 @@ describe("DeckService.createDeck", () => {
   // VALIDATION: CHARACTER DOES NOT EXIST
   // ------------------------------------
   it("throws if character does not exist", async () => {
-    vi.spyOn(repo, "characterExistsById").mockResolvedValue(false);
+    vi.spyOn(characterRepo, "characterExistsById").mockResolvedValue(false);
 
     await expect(
       DeckService.createDeck(INVALID_CHARACTER_ID, {
@@ -62,7 +67,9 @@ describe("DeckService.createDeck", () => {
       }),
     ).rejects.toThrow(ERROR_CHARACTER_NOT_FOUND);
 
-    expect(repo.getOwnedPokemonForCharacterSubset).not.toHaveBeenCalled();
+    expect(
+      characterRepo.getOwnedPokemonForCharacterSubset,
+    ).not.toHaveBeenCalled();
   });
 
   // -------------------------------
@@ -76,7 +83,7 @@ describe("DeckService.createDeck", () => {
       }),
     ).rejects.toThrow(ERROR_NAME);
 
-    expect(repo.characterExistsById).not.toHaveBeenCalled();
+    expect(characterRepo.characterExistsById).not.toHaveBeenCalled();
   });
 
   // ------------------------------------
@@ -90,7 +97,7 @@ describe("DeckService.createDeck", () => {
       }),
     ).rejects.toThrow(ERROR_NAME);
 
-    expect(repo.characterExistsById).not.toHaveBeenCalled();
+    expect(characterRepo.characterExistsById).not.toHaveBeenCalled();
   });
 
   // -------------------------------------
@@ -104,7 +111,7 @@ describe("DeckService.createDeck", () => {
       }),
     ).rejects.toThrow(ERROR_NAME);
 
-    expect(repo.characterExistsById).not.toHaveBeenCalled();
+    expect(characterRepo.characterExistsById).not.toHaveBeenCalled();
   });
 
   // ----------------------------------
@@ -118,7 +125,7 @@ describe("DeckService.createDeck", () => {
       }),
     ).rejects.toThrow(ERROR_NAME);
 
-    expect(repo.characterExistsById).not.toHaveBeenCalled();
+    expect(characterRepo.characterExistsById).not.toHaveBeenCalled();
   });
 
   // ----------------------------------
@@ -132,7 +139,7 @@ describe("DeckService.createDeck", () => {
       }),
     ).rejects.toThrow(ERROR_DECK_SIZE);
 
-    expect(repo.characterExistsById).not.toHaveBeenCalled();
+    expect(characterRepo.characterExistsById).not.toHaveBeenCalled();
   });
 
   // ----------------------------------
@@ -187,10 +194,11 @@ describe("DeckService.createDeck", () => {
   // VALIDATION: CHARACTER DOES NOT OWN ALL 5 POKEMON
   // ------------------------------------------------
   it("throws if character does not own all selected Pokémon", async () => {
-    vi.spyOn(repo, "characterExistsById").mockResolvedValue(true);
-    vi.spyOn(repo, "getOwnedPokemonForCharacterSubset").mockResolvedValue(
-      PARTIALLY_OWNED_ROWS as any,
-    );
+    vi.spyOn(characterRepo, "characterExistsById").mockResolvedValue(true);
+    vi.spyOn(
+      characterRepo,
+      "getOwnedPokemonForCharacterSubset",
+    ).mockResolvedValue(PARTIALLY_OWNED_ROWS as any);
 
     await expect(
       DeckService.createDeck(VALID_CHARACTER_ID, {
@@ -199,21 +207,24 @@ describe("DeckService.createDeck", () => {
       }),
     ).rejects.toThrow(ERROR_NOT_OWNED);
 
-    expect(repo.insertDeck).not.toHaveBeenCalled();
+    expect(deckRepo.insertDeck).not.toHaveBeenCalled();
   });
 
   // ------------------------------------------------------------
   // SUCCESSFUL CREATE DECK
   // ------------------------------------------------------------
   it("creates a deck when character exists, owns all 5 Pokémon, and DTO is valid", async () => {
-    vi.spyOn(repo, "characterExistsById").mockResolvedValue(true);
-    vi.spyOn(repo, "getOwnedPokemonForCharacterSubset").mockResolvedValue(
-      OWNED_POKEMON_ROWS as any,
-    );
+    vi.spyOn(characterRepo, "characterExistsById").mockResolvedValue(true);
+    vi.spyOn(
+      characterRepo,
+      "getOwnedPokemonForCharacterSubset",
+    ).mockResolvedValue(OWNED_POKEMON_ROWS as any);
 
-    vi.spyOn(repo, "insertDeck").mockResolvedValue(123 as any);
-    vi.spyOn(repo, "insertDeckPokemon").mockResolvedValue(undefined);
-    vi.spyOn(repo, "getDeckAttackDefenceSum").mockResolvedValue(TOTAL_STATS);
+    vi.spyOn(deckRepo, "insertDeck").mockResolvedValue(123 as any);
+    vi.spyOn(deckRepo, "insertDeckPokemon").mockResolvedValue(undefined);
+    vi.spyOn(pokemonRepo, "getDeckAttackDefenceSum").mockResolvedValue(
+      TOTAL_STATS,
+    );
 
     const result = await DeckService.createDeck(VALID_CHARACTER_ID, {
       name: VALID_DECK_NAME,
@@ -228,11 +239,11 @@ describe("DeckService.createDeck", () => {
       rank: EXPECTED_RANK,
     });
 
-    expect(repo.insertDeck).toHaveBeenCalledWith(
+    expect(deckRepo.insertDeck).toHaveBeenCalledWith(
       VALID_DECK_NAME,
       VALID_CHARACTER_ID,
     );
-    expect(repo.insertDeckPokemon).toHaveBeenCalledTimes(5);
-    expect(repo.getDeckAttackDefenceSum).toHaveBeenCalledWith(123);
+    expect(deckRepo.insertDeckPokemon).toHaveBeenCalledTimes(5);
+    expect(pokemonRepo.getDeckAttackDefenceSum).toHaveBeenCalledWith(123);
   });
 });
