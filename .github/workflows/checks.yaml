@@ -27,27 +27,6 @@ jobs:
         working-directory: ./Pokedex-api
         run: npm run lint
 
-  # test:
-  #   name: Run Tests
-  #   runs-on: ubuntu-latest
-  #   env:
-  #     DB_FILE_NAME: "file:./local.db"
-
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-
-  #     - name: Set up Node
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: "22"
-
-  #     - name: Install dependencies
-  #       run: npm install
-
-  #     - name: Run Tests
-  #       run: npm test
-
   format:
     name: Check Code Formatting
     runs-on: ubuntu-latest
@@ -68,3 +47,27 @@ jobs:
       - name: Check Formatting with Prettier
         working-directory: ./Pokedex-api
         run: npm run format:check
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        working-directory: ./Pokedex-api
+        run: npm install
+
+      - name: Start Docker
+        run: sudo systemctl start docker
+
+      - name: Run tests (unit + integration)
+        working-directory: ./Pokedex-api
+        env:
+          POKE_API_BASE_URL: ${{ secrets.POKE_API_BASE_URL }}
+        run: npm test
