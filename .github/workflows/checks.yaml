@@ -59,36 +59,15 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install deps
+      - name: Install dependencies
         working-directory: ./Pokedex-api
         run: npm install
 
-      - name: Install MySQL client
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y default-mysql-client
+      - name: Start Docker
+        run: sudo systemctl start docker
 
-      - name: Start MySQL using secrets
-        run: |
-          docker run -d \
-            --name mysql \
-            -e MYSQL_ROOT_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            -e MYSQL_DATABASE=${{ secrets.DB_NAME }} \
-            -p 3306:3306 \
-            mysql:8.0
-
-      - name: Wait for MySQL
-        run: |
-          until mysql -h 127.0.0.1 -u root -p${{ secrets.DB_PASSWORD }} -e "SELECT 1"; do
-            sleep 2
-          done
-
-      - name: Run tests
+      - name: Run tests (unit + integration)
         working-directory: ./Pokedex-api
         env:
-          DB_HOST: 127.0.0.1
-          DB_USER: root
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-          DB_NAME: ${{ secrets.DB_NAME }}
           POKE_API_BASE_URL: ${{ secrets.POKE_API_BASE_URL }}
         run: npm test
