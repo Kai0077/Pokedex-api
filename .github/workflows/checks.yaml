@@ -49,34 +49,26 @@ jobs:
         run: npm run format:check
 
   test:
-    name: Run All Tests (unit and integration tests)
+    name: Run Tests
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: 22
 
-      - name: Install dependencies
+      - name: Install deps
         working-directory: ./Pokedex-api
         run: npm install
 
-      # ----------------------------
-      # INSTALL MySQL
-      # ----------------------------
       - name: Install MySQL client
         run: |
           sudo apt-get update
-          sudo apt-get install -y mysql-client
+          sudo apt-get install -y default-mysql-client
 
-      # ----------------------------
-      # START MYSQL
-      # ----------------------------
-      - name: Start MySQL container
+      - name: Start MySQL using secrets
         run: |
           docker run -d \
             --name mysql \
@@ -91,10 +83,7 @@ jobs:
             sleep 2
           done
 
-      # --------------------------
-      # RUN TESTS
-      # --------------------------
-      - name: Run Tests
+      - name: Run tests
         working-directory: ./Pokedex-api
         env:
           DB_HOST: 127.0.0.1
