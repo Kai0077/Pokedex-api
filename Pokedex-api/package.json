@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@testcontainers/mysql": "^11.9.0",
     "@types/node": "^20.19.25",
     "@vitest/coverage-v8": "^4.0.13",
     "eslint": "^9.39.1",
