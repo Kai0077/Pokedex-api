@@ -28,7 +28,6 @@ export function validateFirstName(firstName: string): string {
   return trimmed;
 }
 
-
 export function validateLastName(lastName: string): string {
   if (!lastName || lastName.trim().length === 0) {
     throw new Error("Last name must not be empty");
