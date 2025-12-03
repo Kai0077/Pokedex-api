@@ -45,6 +45,7 @@ beforeEach(() => {
 
 describe("CharacterService.getCharacterPokemon", () => {
   it("returns all pokemon owned by a character", async () => {
+    vi.spyOn(repo, "characterExists").mockResolvedValue(true);
     vi.spyOn(repo, "getCharacterPokemonRows").mockResolvedValue(
       MOCK_POKEMON_ROWS as any,
     );
