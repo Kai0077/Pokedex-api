@@ -7,14 +7,13 @@ import {
 import { resetDB } from "../../../reset-db.js";
 import { getDB } from "../../../../src/db/connection.js";
 
-const db = getDB();
-
 describe("getDecksForCharacterRows", () => {
   beforeEach(async () => {
     await resetDB();
   });
 
   it("returns all decks for a character including their pokemon", async () => {
+    const db = getDB();
     const characterId = await insertCharacter("Kai", "Larsen", 21, "male");
 
     const [deckInsert] = await db.execute(

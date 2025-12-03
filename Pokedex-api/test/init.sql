@@ -1,5 +1,6 @@
 -- Create database
-CREATE DATABASE IF NOT EXISTS pokedex_test
+DROP DATABASE IF EXISTS pokedex_test;
+CREATE DATABASE pokedex_test
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 

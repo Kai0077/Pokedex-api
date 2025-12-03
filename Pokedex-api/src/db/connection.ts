@@ -18,3 +18,10 @@ export function getDB(): Pool {
   }
   return pool;
 }
+
+export function resetPool() {
+  if (pool) {
+    pool.end();
+    pool = null;
+  }
+}
