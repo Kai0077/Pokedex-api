@@ -14,7 +14,7 @@ export const createCharacter = async (character: Context) => {
 export const getCharacterPokemon = async (c: Context) => {
   const characterId = Number(c.req.param("id"));
 
-  if (isNaN(characterId)) {
+  if (isNaN(characterId) || characterId < 1) {
     return c.json({ error: "Invalid character ID" }, 400);
   }
 
@@ -42,14 +42,20 @@ export const getAllCharacters = async (c: Context) => {
 };
 
 export const getAllCharacterDecks = async (c: Context) => {
+  const characterId = Number(c.req.param("id"));
+
+  if (isNaN(characterId) || characterId < 1) {
+    return c.json({ error: "Invalid character ID" }, 400);
+  }
+
   try {
-    const characterId = Number(c.req.param("id"));
     const decks = await CharacterService.getDecksForCharacter(characterId);
     return c.json(decks, 200);
   } catch (error) {
-    return c.json(
-      { error: error instanceof Error ? error.message : "Unknown error" },
-      400,
-    );
+    if (error instanceof Error && error.message === "Character not found.") {
+      return c.json({ error: error.message }, 404);
+    }
+
+    throw error;
   }
 };
