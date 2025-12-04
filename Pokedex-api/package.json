@@ -1,5 +1,5 @@
 {
-  "name": "Pokedex-api",
+  "name": "pokedex-api",
   "type": "module",
   "scripts": {
     "format": "prettier --write .",
