@@ -6,7 +6,9 @@ CREATE DATABASE pokedex_test
 
 USE pokedex_test;
 
--- Create user
+-- ==========================================================
+-- CREATE USER
+-- ==========================================================
 CREATE USER IF NOT EXISTS 'pokedex_user_test'@'%' IDENTIFIED BY '3a!k$YD@$';
 GRANT ALL PRIVILEGES ON pokedex_test.* TO 'pokedex_user_test'@'%';
 FLUSH PRIVILEGES;
@@ -61,7 +63,7 @@ CREATE TABLE IF NOT EXISTS deck (
 ) ENGINE=InnoDB;
 
 -- ==========================================================
--- CHARACTER_POKEMON
+-- CHARACTER POKEMON
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS character_pokemon (
   characterId INT UNSIGNED NOT NULL,
@@ -81,7 +83,7 @@ CREATE TABLE IF NOT EXISTS character_pokemon (
 ) ENGINE=InnoDB;
 
 -- ==========================================================
--- POKEMON_DECK
+-- POKEMON DECK
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS pokemon_deck (
   deckId     INT UNSIGNED NOT NULL,

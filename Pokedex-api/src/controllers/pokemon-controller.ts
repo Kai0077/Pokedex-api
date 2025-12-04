@@ -52,7 +52,7 @@ export class PokemonController {
         200,
       );
     } catch (error) {
-      console.error("Seed error:", error);
+      process.stderr.write(`Seed error: ${error}\n`);
       return c.json(
         {
           error:

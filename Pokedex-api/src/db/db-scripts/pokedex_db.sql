@@ -1,4 +1,3 @@
--- Create database (run once, safe to re-run)
 CREATE DATABASE IF NOT EXISTS pokedex
   CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
@@ -9,7 +8,7 @@ USE pokedex;
 --  POKEMON
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS pokemon (
-  id                 INT UNSIGNED NOT NULL,   -- id from the Pokémon API
+  id                 INT UNSIGNED NOT NULL,
   name               VARCHAR(100)  NOT NULL,
   types              ENUM(
                         'normal', 'fighting', 'flying', 'poison', 'ground',
@@ -28,7 +27,6 @@ CREATE TABLE IF NOT EXISTS pokemon (
 
 -- ==========================================================
 --  CHARACTER
---  (backticked because "character" is also a SQL keyword)
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS `character` (
   id            INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -36,12 +34,12 @@ CREATE TABLE IF NOT EXISTS `character` (
   lastname      VARCHAR(45) NOT NULL,
   age           TINYINT UNSIGNED NOT NULL,
   gender        ENUM('male', 'female', 'other') NOT NULL,
-  lastGatherAt  DATETIME NULL,               -- NEW: last time character gathered Pokémon
+  lastGatherAt  DATETIME NULL,
   PRIMARY KEY (id)
 ) ENGINE=InnoDB;
 
 -- ==========================================================
---  DECK   (0..* decks per character)
+--  DECK
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS deck (
   id          INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -57,7 +55,7 @@ CREATE TABLE IF NOT EXISTS deck (
 ) ENGINE=InnoDB;
 
 -- ==========================================================
---  CHARACTER_POKEMON   (which pokémon a character owns)
+--  CHARACTER_POKEMON
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS character_pokemon (
   characterId INT UNSIGNED NOT NULL,
@@ -77,7 +75,7 @@ CREATE TABLE IF NOT EXISTS character_pokemon (
 ) ENGINE=InnoDB;
 
 -- ==========================================================
---  POKEMON_DECK   (pokémon in a specific deck)
+--  POKEMON_DECK
 -- ==========================================================
 CREATE TABLE IF NOT EXISTS pokemon_deck (
   deckId    INT UNSIGNED NOT NULL,
