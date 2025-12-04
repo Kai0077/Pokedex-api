@@ -7,6 +7,10 @@ import {
 } from "../../../../src/repositories/character-repository.js";
 import { resetDB } from "../../../reset-db.js";
 
+// ============================
+// TESTS
+// ============================
+
 describe("addPokemonToCharacter", () => {
   beforeEach(async () => {
     await resetDB();

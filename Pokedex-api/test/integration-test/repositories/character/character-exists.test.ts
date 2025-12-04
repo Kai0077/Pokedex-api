@@ -6,6 +6,10 @@ import {
   characterExistsById,
 } from "../../../../src/repositories/character-repository.js";
 
+// ============================
+// TESTS
+// ============================
+
 describe("characterExistsById", () => {
   beforeEach(async () => {
     await resetDB();

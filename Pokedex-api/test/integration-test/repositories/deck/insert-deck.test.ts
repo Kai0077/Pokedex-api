@@ -6,6 +6,10 @@ import {
 import { insertCharacter } from "../../../../src/repositories/character-repository.js";
 import { resetDB } from "../../../reset-db.js";
 
+// ============================
+// TESTS
+// ============================
+
 describe("insertDeck", () => {
   beforeEach(async () => {
     await resetDB();
