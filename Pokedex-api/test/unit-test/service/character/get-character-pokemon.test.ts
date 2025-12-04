@@ -46,12 +46,14 @@ beforeEach(() => {
 describe("CharacterService.getCharacterPokemon", () => {
   it("returns all pokemon owned by a character", async () => {
     vi.spyOn(repo, "characterExists").mockResolvedValue(true);
+
     vi.spyOn(repo, "getCharacterPokemonRows").mockResolvedValue(
       MOCK_POKEMON_ROWS as any,
     );
 
     const result = await CharacterService.getCharacterPokemon(CHARACTER_ID);
 
+    expect(repo.characterExists).toHaveBeenCalledWith(CHARACTER_ID);
     expect(repo.getCharacterPokemonRows).toHaveBeenCalledWith(CHARACTER_ID);
     expect(result).toEqual(MOCK_POKEMON_ROWS);
   });
