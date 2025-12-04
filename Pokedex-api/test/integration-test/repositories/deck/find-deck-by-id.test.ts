@@ -18,13 +18,13 @@ describe("findDeckById", () => {
 
   it("returns deck row when deck exists", async () => {
     const characterId = await insertCharacter("Kai", "Hans", 20, "male");
-    const deckId = await insertDeck("WaterTeam", characterId);
+    const deckId = await insertDeck("Water Team", characterId);
 
     const deck = await findDeckById(deckId);
 
     expect(deck).not.toBeNull();
     expect(deck.id).toBe(deckId);
     expect(deck.characterId).toBe(characterId);
-    expect(deck.name).toBe("WaterTeam");
+    expect(deck.name).toBe("Water Team");
   });
 });
