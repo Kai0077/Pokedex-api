@@ -3,7 +3,7 @@
 ## Setup
 
 `git clone <repo-url>`  
-`cd Pokedex-api`  
+`cd Pokedex-api`
 
 `npm install`
 
