@@ -61,8 +61,8 @@ export class PokemonService {
     try {
       const response = await fetch(`${this.baseUrl}/${id}`);
       if (!response.ok) {
-        console.warn(
-          `Failed to fetch Pokemon ID ${id}: ${response.statusText}`,
+        process.stderr.write(
+          `Failed to fetch Pokemon ID ${id}: ${response.statusText}\n`,
         );
         return null;
       }
@@ -70,7 +70,7 @@ export class PokemonService {
       const data = (await response.json()) as PokeApiResponse;
       return this.mapApiToDomain(data);
     } catch (error) {
-      console.error(`Error fetching Pokemon ID ${id}:`, error);
+      process.stderr.write(`Error fetching Pokemon ID ${id}: ${error}\n`);
       return null;
     }
   }
@@ -94,9 +94,9 @@ export class PokemonService {
 
     try {
       await insertOrUpdatePokemonBatch(rows);
-      console.log(`Saved ${pokemons.length} pokemon to database.`);
+      process.stdout.write(`Saved ${pokemons.length} pokemon to database. \n`);
     } catch (error) {
-      console.error("Database save error:", error);
+      process.stderr.write(`Database save error: ${error}`);
       throw new Error("Failed to save pokemon batch");
     }
   }

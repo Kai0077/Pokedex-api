@@ -132,7 +132,7 @@ export class CharacterService {
       };
 
       await insertPokemonRow(row);
-      console.log(`Inserted starter Pokémon: ${row.name}`);
+      process.stdout.write(`Inserted starter Pokémon: ${row.name}\n`);
     }
   }
 }
