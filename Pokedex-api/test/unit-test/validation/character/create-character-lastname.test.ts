@@ -23,52 +23,76 @@ function runCase(
   if (valid) {
     expect(act).not.toThrow();
   } else {
-    if (msgPattern) {
-      expect(act).toThrow(msgPattern);
-    } else {
-      expect(act).toThrow();
-    }
+    if (msgPattern) expect(act).toThrow(msgPattern);
+    else expect(act).toThrow();
   }
 }
 
+// ---------------------------------------------------------
+// REGEX MESSAGE PATTERNS
+// ---------------------------------------------------------
+const ERROR_LASTNAME = /last name/i;
+
 describe("CreateCharacterDTO – Lastname partition (A12–A22)", () => {
-  it('A11: Lastname = "" -> invalid', () => {
-    runCase({ lastName: "" }, false, /last name/i);
-  });
+  it.each([
+    {
+      label: 'A11: Lastname = ""',
+      overrides: { lastName: "" },
+      valid: false,
+      msg: ERROR_LASTNAME,
+    },
+    {
+      label: "A12: Lastname < 3 characters ('H')",
+      overrides: { lastName: "H" },
+      valid: false,
+      msg: ERROR_LASTNAME,
+    },
+    {
+      label: "A13: Lastname = 2 characters ('Ha')",
+      overrides: { lastName: "Ha" },
+      valid: false,
+      msg: ERROR_LASTNAME,
+    },
 
-  it("A12: Lastname < 3 characters ('H') -> invalid", () => {
-    runCase({ lastName: "H" }, false, /last name/i);
-  });
+    {
+      label: "A14: Lastname = 3 characters ('Han')",
+      overrides: { lastName: "Han" },
+      valid: true,
+    },
+    {
+      label: "A15: Lastname = 4 characters ('Hans')",
+      overrides: { lastName: "Hans" },
+      valid: true,
+    },
+    {
+      label: "A16: Lastname 25 characters",
+      overrides: { lastName: "H".repeat(25) },
+      valid: true,
+    },
+    {
+      label: "A17: Lastname 44 characters",
+      overrides: { lastName: "H".repeat(44) },
+      valid: true,
+    },
+    {
+      label: "A18: Lastname 45 characters",
+      overrides: { lastName: "H".repeat(45) },
+      valid: true,
+    },
 
-  it("A13: Lastname = 2 characters ('Ha') -> invalid", () => {
-    runCase({ lastName: "Ha" }, false, /last name/i);
-  });
-
-  it("A14: Lastname = 3 characters ('Han') -> valid", () => {
-    runCase({ lastName: "Han" }, true);
-  });
-
-  it("A15: Lastname = 4 characters ('Hans') -> valid", () => {
-    runCase({ lastName: "Hans" }, true);
-  });
-
-  it("A16: Lastname 25 characters -> valid", () => {
-    runCase({ lastName: "H".repeat(25) }, true);
-  });
-
-  it("A17: Lastname 44 characters -> valid", () => {
-    runCase({ lastName: "H".repeat(44) }, true);
-  });
-
-  it("A18: Lastname 45 characters -> valid", () => {
-    runCase({ lastName: "H".repeat(45) }, true);
-  });
-
-  it("A19: Lastname 46 characters -> invalid (too long)", () => {
-    runCase({ lastName: "H".repeat(46) }, false, /last name/i);
-  });
-
-  it("A20: Lastname > 45 characters -> invalid", () => {
-    runCase({ lastName: "H".repeat(60) }, false, /last name/i);
+    {
+      label: "A19: Lastname 46 characters (too long)",
+      overrides: { lastName: "H".repeat(46) },
+      valid: false,
+      msg: ERROR_LASTNAME,
+    },
+    {
+      label: "A20: Lastname > 45 characters",
+      overrides: { lastName: "H".repeat(60) },
+      valid: false,
+      msg: ERROR_LASTNAME,
+    },
+  ])("$label -> valid: $valid", ({ overrides, valid, msg }) => {
+    runCase(overrides, valid, msg);
   });
 });

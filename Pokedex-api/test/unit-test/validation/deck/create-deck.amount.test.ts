@@ -25,36 +25,56 @@ function runCase(
   if (valid) {
     expect(act).not.toThrow();
   } else {
-    if (msgPattern) {
-      expect(act).toThrow(msgPattern);
-    } else {
-      expect(act).toThrow();
-    }
+    if (msgPattern) expect(act).toThrow(msgPattern);
+    else expect(act).toThrow();
   }
 }
 
+// ---------------------------------------------------------
+// REGEX MESSAGE PATTERNS
+// ---------------------------------------------------------
+const ERROR_AMOUNT = /exactly 5 pokemon/i;
+
 describe("CreateDeckDTO – Amount of pokemons (B12–B17)", () => {
-  it("B11: amount = 0 -> invalid", () => {
-    runCase({ pokemonIds: [] }, false, /exactly 5 pokemon/i);
-  });
+  it.each([
+    {
+      label: "B11: amount = 0",
+      overrides: { pokemonIds: [] },
+      valid: false,
+      msg: ERROR_AMOUNT,
+    },
+    {
+      label: "B13: amount = 1",
+      overrides: { pokemonIds: [1] },
+      valid: false,
+      msg: ERROR_AMOUNT,
+    },
+    {
+      label: "B14: amount = 2",
+      overrides: { pokemonIds: [1, 2] },
+      valid: false,
+      msg: ERROR_AMOUNT,
+    },
+    {
+      label: "B15: amount = 4",
+      overrides: { pokemonIds: [1, 2, 3, 4] },
+      valid: false,
+      msg: ERROR_AMOUNT,
+    },
 
-  it("B13: amount = 1 -> invalid", () => {
-    runCase({ pokemonIds: [1] }, false, /exactly 5 pokemon/i);
-  });
+    {
+      label: "B16: amount = 5 (boundary)",
+      overrides: { pokemonIds: [1, 2, 3, 4, 5] },
+      valid: true,
+    },
 
-  it("B14: amount = 2 -> invalid", () => {
-    runCase({ pokemonIds: [1, 2] }, false, /exactly 5 pokemon/i);
-  });
-
-  it("B15: amount = 4 -> invalid", () => {
-    runCase({ pokemonIds: [1, 2, 3, 4] }, false, /exactly 5 pokemon/i);
-  });
-
-  it("B16: amount = 5 -> valid boundary", () => {
-    runCase({ pokemonIds: [1, 2, 3, 4, 5] }, true);
-  });
-
-  it("B17: amount = 6 -> invalid", () => {
-    runCase({ pokemonIds: [1, 2, 3, 4, 5, 6] }, false, /exactly 5 pokemon/i);
+    {
+      label: "B17: amount = 6",
+      overrides: { pokemonIds: [1, 2, 3, 4, 5, 6] },
+      valid: false,
+      msg: ERROR_AMOUNT,
+    },
+  ])("$label -> valid: $valid", ({ overrides, valid, msg }) => {
+    runCase(overrides, valid, msg);
   });
 });

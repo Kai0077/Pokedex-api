@@ -23,32 +23,48 @@ function runCase(
   if (valid) {
     expect(act).not.toThrow();
   } else {
-    if (msgPattern) {
-      expect(act).toThrow(msgPattern);
-    } else {
-      expect(act).toThrow();
-    }
+    if (msgPattern) expect(act).toThrow(msgPattern);
+    else expect(act).toThrow();
   }
 }
 
+// ---------------------------------------------------------
+// REGEX MESSAGE PATTERNS
+// ---------------------------------------------------------
+const ERROR_GENDER_EMPTY = /gender/i;
+const ERROR_GENDER_INVALID = /invalid gender/i;
+
 describe("CreateCharacterDTO – Gender partition (A34–A38)", () => {
-  it("A34: Gender empty -> invalid", () => {
-    runCase({ gender: "" }, false, /gender/i);
-  });
+  it.each([
+    {
+      label: "A34: Gender empty",
+      overrides: { gender: "" },
+      valid: false,
+      msg: ERROR_GENDER_EMPTY,
+    },
+    {
+      label: 'A35: Gender not in allowed list ("Unknown")',
+      overrides: { gender: "Unknown" },
+      valid: false,
+      msg: ERROR_GENDER_INVALID,
+    },
 
-  it('A35: Gender value not in allowed list ("Unknown") -> invalid', () => {
-    runCase({ gender: "Unknown" }, false, /invalid gender/i);
-  });
-
-  it('A36: Gender = "Male" -> valid (case-insensitive)', () => {
-    runCase({ gender: "Male" }, true);
-  });
-
-  it('A37: Gender = "Female" -> valid', () => {
-    runCase({ gender: "Female" }, true);
-  });
-
-  it('A38: Gender = "Other" -> valid', () => {
-    runCase({ gender: "Other" }, true);
+    {
+      label: 'A36: Gender = "Male" (case-insensitive)',
+      overrides: { gender: "Male" },
+      valid: true,
+    },
+    {
+      label: 'A37: Gender = "Female"',
+      overrides: { gender: "Female" },
+      valid: true,
+    },
+    {
+      label: 'A38: Gender = "Other"',
+      overrides: { gender: "Other" },
+      valid: true,
+    },
+  ])("$label -> valid: $valid", ({ overrides, valid, msg }) => {
+    runCase(overrides, valid, msg);
   });
 });
