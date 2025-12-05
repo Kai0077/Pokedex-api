@@ -23,48 +23,69 @@ function runCase(
   if (valid) {
     expect(act).not.toThrow();
   } else {
-    if (msgPattern) {
-      expect(act).toThrow(msgPattern);
-    } else {
-      expect(act).toThrow();
-    }
+    if (msgPattern) expect(act).toThrow(msgPattern);
+    else expect(act).toThrow();
   }
 }
 
+// ---------------------------------------------------------
+// REGEX MESSAGE PATTERNS
+// ---------------------------------------------------------
+const ERROR_STARTER_EMPTY = /starter pokemon/i;
+const ERROR_STARTER_INVALID = /invalid starter/i;
+
 describe("CreateCharacterDTO – Starter Pokemon partition (A39–A46)", () => {
-  it("A39: Starter Pokemon = empty -> invalid", () => {
-    runCase({ starter: "" }, false, /starter pokemon/i);
-  });
+  it.each([
+    {
+      label: "A39: Starter Pokemon empty",
+      overrides: { starter: "" },
+      valid: false,
+      msg: ERROR_STARTER_EMPTY,
+    },
 
-  it('A40: Starter = "Bulbasaur" -> valid', () => {
-    runCase({ starter: "Bulbasaur" }, true);
-  });
+    {
+      label: 'A40: Starter = "Bulbasaur"',
+      overrides: { starter: "Bulbasaur" },
+      valid: true,
+    },
+    {
+      label: 'A41: Starter = "Charmander"',
+      overrides: { starter: "Charmander" },
+      valid: true,
+    },
+    {
+      label: 'A42: Starter = "Squirtle"',
+      overrides: { starter: "Squirtle" },
+      valid: true,
+    },
 
-  it('A41: Starter = "Charmander" -> valid', () => {
-    runCase({ starter: "Charmander" }, true);
-  });
+    {
+      label: 'A43: Starter = "Pikachu" (not allowed)',
+      overrides: { starter: "Pikachu" },
+      valid: false,
+      msg: ERROR_STARTER_INVALID,
+    },
+    {
+      label: 'A44: Starter = "Mewtwo" (not allowed)',
+      overrides: { starter: "Mewtwo" },
+      valid: false,
+      msg: ERROR_STARTER_INVALID,
+    },
 
-  it('A42: Starter = "Squirtle" -> valid', () => {
-    runCase({ starter: "Squirtle" }, true);
-  });
+    {
+      label: "A45: Multiple starters ['Charmander', 'Pikachu']",
+      overrides: { starter: ["Charmander", "Pikachu"] as any },
+      valid: false,
+      msg: ERROR_STARTER_INVALID,
+    },
 
-  it('A43: Starter = "Pikachu" (not in list) -> invalid', () => {
-    runCase({ starter: "Pikachu" }, false, /invalid starter/i);
-  });
-
-  it('A44: Starter = "Mewtwo" (non-starter) -> invalid', () => {
-    runCase({ starter: "Mewtwo" }, false, /invalid starter/i);
-  });
-
-  it('A45: User tries to select more than one starter ["Charmander", "Pikachu"] -> invalid', () => {
-    runCase(
-      { starter: ["Charmander", "Pikachu"] as any },
-      false,
-      /invalid starter/i,
-    );
-  });
-
-  it('A46: Starter value random string "jsjajskjfkdna" -> invalid', () => {
-    runCase({ starter: "jsjajskjfkdna" }, false, /invalid starter/i);
+    {
+      label: 'A46: Starter random string "jsjajskjfkdna"',
+      overrides: { starter: "jsjajskjfkdna" },
+      valid: false,
+      msg: ERROR_STARTER_INVALID,
+    },
+  ])("$label -> valid: $valid", ({ overrides, valid, msg }) => {
+    runCase(overrides, valid, msg);
   });
 });

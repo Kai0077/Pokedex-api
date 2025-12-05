@@ -25,20 +25,30 @@ function runCase(
   if (valid) {
     expect(act).not.toThrow();
   } else {
-    if (msgPattern) {
-      expect(act).toThrow(msgPattern);
-    } else {
-      expect(act).toThrow();
-    }
+    if (msgPattern) expect(act).toThrow(msgPattern);
+    else expect(act).toThrow();
   }
 }
 
-describe("CreateDeckDTO – Duplicate pokemons (B18–B19)", () => {
-  it("B17: has duplicates [1, 2, 3, 2, 5] -> invalid", () => {
-    runCase({ pokemonIds: [1, 2, 3, 2, 5] }, false, /duplicate pokemon/i);
-  });
+// ---------------------------------------------------------
+// REGEX MESSAGE PATTERNS
+// ---------------------------------------------------------
+const ERROR_DUPLICATES = /duplicate pokemon/i;
 
-  it("B18: no duplicates [1, 2, 3, 4, 5] -> valid", () => {
-    runCase({ pokemonIds: [1, 2, 3, 4, 5] }, true);
+describe("CreateDeckDTO – Duplicate pokemons (B18–B19)", () => {
+  it.each([
+    {
+      label: "B17: has duplicates [1, 2, 3, 2, 5] -> invalid",
+      overrides: { pokemonIds: [1, 2, 3, 2, 5] },
+      valid: false,
+      msg: ERROR_DUPLICATES,
+    },
+    {
+      label: "B18: no duplicates [1, 2, 3, 4, 5] -> valid",
+      overrides: { pokemonIds: [1, 2, 3, 4, 5] },
+      valid: true,
+    },
+  ])("$label", ({ overrides, valid, msg }) => {
+    runCase(overrides, valid, msg);
   });
 });
