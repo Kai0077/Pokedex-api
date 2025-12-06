@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { calculateDeckRank } from "../../../../../src/services/deck-ranking-service.js";
 
+const ERR_NOT_NUMBER = /Total must be a valid number/i;
+const ERR_NEGATIVE = /Total must be equal or above 0/i;
+
 function runCase(
   total: any,
   valid: boolean,
@@ -16,9 +19,6 @@ function runCase(
     else expect(act).toThrow();
   }
 }
-
-const ERR_NOT_NUMBER = /Total must be a valid number/i;
-const ERR_NEGATIVE = /Total must be equal or above 0/i;
 
 describe("calculateDeckRank - WHITEBOX tests", () => {
   it.each([
