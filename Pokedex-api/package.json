@@ -1,5 +1,5 @@
 {
-  "name": "Pokedex-api",
+  "name": "pokedex-api",
   "type": "module",
   "scripts": {
     "format": "prettier --write .",
@@ -7,10 +7,12 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
+    "test:watch": "vitest --watch --reporter=verbose",
     "test:coverage": "vitest run --coverage",
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "db:reset": "tsx src/db/db-reset.ts"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.6",

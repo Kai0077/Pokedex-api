@@ -5,6 +5,10 @@ import {
 } from "../../../../src/repositories/character-repository.js";
 import { resetDB } from "../../../reset-db.js";
 
+// ============================
+// TESTS
+// ============================
+
 describe("insertCharacter", () => {
   beforeEach(async () => {
     await resetDB();

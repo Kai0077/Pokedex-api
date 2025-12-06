@@ -7,6 +7,10 @@ import {
 import { resetDB } from "../../../reset-db.js";
 import { getDB } from "../../../../src/db/connection.js";
 
+// ============================
+// TESTS
+// ============================
+
 describe("getDecksForCharacterRows", () => {
   beforeEach(async () => {
     await resetDB();

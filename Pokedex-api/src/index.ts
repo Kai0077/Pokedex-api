@@ -7,6 +7,8 @@ import pokemonRoutes from "./routes/pokemon-routes.js";
 import deckRoutes from "./routes/deck-routes.js";
 import { cors } from "hono/cors";
 
+import { verifySeedData } from "./db/verify-seed-data.js";
+
 const app = new Hono();
 const port = Number(process.env.PORT) || 3000;
 
@@ -29,6 +31,8 @@ app.route("/api/character", characterRoutes);
 app.route("/api/pokemon", pokemonRoutes);
 app.route("/api/deck", deckRoutes);
 
+await verifySeedData();
+
 serve({ fetch: app.fetch, port }, (info) =>
-  console.log(`Server running: http://localhost:${info.port}`),
+  process.stdout.write(`Server is running on: http://localhost:${info.port}`),
 );

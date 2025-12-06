@@ -7,12 +7,16 @@ import {
 } from "../../../../src/repositories/character-repository.js";
 import { resetDB } from "../../../reset-db.js";
 
+// ============================
+// TESTS
+// ============================
+
 describe("addPokemonToCharacter", () => {
   beforeEach(async () => {
     await resetDB();
   });
 
-  it("links a pokemon to a character and returns full pokemon row", async () => {
+  it("add a pokemon to a character and return pokemon", async () => {
     const characterId = await insertCharacter("Kai", "Hans", 20, "male");
 
     await insertPokemonRow({
