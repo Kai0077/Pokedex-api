@@ -6,7 +6,7 @@ export function calculateDeckRank(total: number): DeckRank {
   }
 
   if (total < 0) {
-    throw new Error("Total must be above 0");
+    throw new Error("Total must be equal or above 0");
   }
 
   if (total <= 399) return "D";
