@@ -35,6 +35,9 @@ function runCase(
 // ---------------------------------------------------------
 const ERROR_DUPLICATES = /duplicate pokemon/i;
 
+// ---------------------------------------------------------
+// TESTS
+// ---------------------------------------------------------
 describe("CreateDeckDTO – Duplicate pokemons (B18–B19)", () => {
   it.each([
     {
