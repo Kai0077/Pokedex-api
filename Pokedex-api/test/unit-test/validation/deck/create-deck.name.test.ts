@@ -37,6 +37,9 @@ const ERROR_EMPTY = /deck name cannot be empty/i;
 const ERROR_TOO_SHORT = /too short/i;
 const ERROR_TOO_LONG = /too long/i;
 
+// ---------------------------------------------------------
+// TESTS
+// ---------------------------------------------------------
 describe("CreateDeckDTO – Deck name partition (B1–B11)", () => {
   it.each([
     {

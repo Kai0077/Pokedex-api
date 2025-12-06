@@ -1,52 +1,68 @@
-import { describe, it, beforeEach, expect } from "vitest";
-import { getDB } from "../../../../src/db/connection.js";
-import { getDeckAttackDefenceSum } from "../../../../src/repositories/pokemon-repository.js";
+import { describe, it, expect, beforeEach } from "vitest";
+import {
+  insertOrUpdatePokemonBatch,
+  getDeckAttackDefenceSum,
+} from "../../../../src/repositories/pokemon-repository.js";
+import {
+  insertDeck,
+  insertDeckPokemon,
+} from "../../../../src/repositories/deck-repository.js";
+import { insertCharacter } from "../../../../src/repositories/character-repository.js";
+import { resetDB } from "../../../reset-db.js";
 
-describe("getDeckAttackDefenceSum(deckId) – integration", () => {
-  const db = getDB();
+// ============================
+// TESTS
+// ============================
 
+describe("getDeckAttackDefenceSum", () => {
   beforeEach(async () => {
-    // Clear child tables first because of FKs
-    await db.execute("DELETE FROM pokemon_deck");
-    await db.execute("DELETE FROM character_pokemon");
-    await db.execute("DELETE FROM deck");
-    await db.execute("DELETE FROM `character`");
-    await db.execute("DELETE FROM pokemon");
+    await resetDB();
   });
 
-  it("returns the correct sum for a deck with 2 Pokémon", async () => {
-    // 1) Insert Pokémon
-    await db.execute(
-      `INSERT INTO pokemon (id, name, types, hp, attack, defence, spriteUrl, spriteOfficialUrl)
-       VALUES
-       (1, 'P1', 'fire', 50, 100, 50, 'url1', 'ourl1'),
-       (2, 'P2', 'water', 60, 80,  40, 'url2', 'ourl2')`,
-    );
+  it("returns null for an empty deck", async () => {
+    const characterId = await insertCharacter("Kai", "Hans", 20, "male");
+    const deckId = await insertDeck("Team Fire", characterId);
 
-    // 2) Insert character + deck
-    const [charRes] = await db.execute<any>(
-      "INSERT INTO `character` (firstname, lastname, age, gender) VALUES ('Ash', 'K', 20, 'male')",
-    );
-    const characterId = charRes.insertId as number;
+    const result = await getDeckAttackDefenceSum(deckId);
+    expect(result).toBeNull();
+  });
 
-    const [deckRes] = await db.execute<any>(
-      "INSERT INTO deck (name, characterId) VALUES ('Test Deck', ?)",
-      [characterId],
-    );
-    const deckId = deckRes.insertId as number;
+  it("returns the correct sum of attack + defence using pokemon stats", async () => {
+    await insertOrUpdatePokemonBatch([
+      {
+        id: 1,
+        name: "bulbasaur",
+        types: "grass",
+        hp: 45,
+        attack: 49,
+        defence: 49,
+        spriteUrl:
+          "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png",
+        spriteOfficialUrl:
+          "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
+      },
+      {
+        id: 4,
+        name: "charmander",
+        types: "fire",
+        hp: 39,
+        attack: 52,
+        defence: 43,
+        spriteUrl:
+          "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png",
+        spriteOfficialUrl:
+          "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png",
+      },
+    ]);
 
-    // 3) Link Pokémon to deck
-    await db.execute(
-      "INSERT INTO pokemon_deck (deckId, pokemonId) VALUES (?, ?), (?, ?)",
-      [deckId, 1, deckId, 2],
-    );
+    const characterId = await insertCharacter("Kai", "Hans", 20, "male");
+    const deckId = await insertDeck("Starter Deck", characterId);
 
-    // 4) Call the function under test
-    const total = await getDeckAttackDefenceSum(deckId);
+    await insertDeckPokemon(deckId, 1);
+    await insertDeckPokemon(deckId, 4);
 
-    // P1: 100 + 50 = 150
-    // P2:  80 + 40 = 120
-    // total = 270
-    expect(total).toBe(270);
+    const result = await getDeckAttackDefenceSum(deckId);
+
+    expect(result).toBe(193);
   });
 });
