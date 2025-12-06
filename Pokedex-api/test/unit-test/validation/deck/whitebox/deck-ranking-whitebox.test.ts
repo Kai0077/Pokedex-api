@@ -17,8 +17,8 @@ function runCase(
   }
 }
 
-const ERR_NOT_NUMBER = /valid number/i;
-const ERR_NEGATIVE = />= 0/i;
+const ERR_NOT_NUMBER = /Total must be a valid number/i;
+const ERR_NEGATIVE = /Total must be equal or above 0/i;
 
 describe("calculateDeckRank - WHITEBOX tests", () => {
   it.each([
