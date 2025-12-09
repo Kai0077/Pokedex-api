@@ -37,30 +37,30 @@ const ERROR_GENDER_INVALID = /invalid gender/i;
 describe("CreateCharacterDTO – Gender partition (A34–A38)", () => {
   it.each([
     {
-      label: "A34: Gender empty",
+      label: "A33: Gender empty",
       overrides: { gender: "" },
       valid: false,
       msg: ERROR_GENDER_EMPTY,
     },
     {
-      label: 'A35: Gender not in allowed list ("Unknown")',
+      label: 'A34: Gender not in allowed list ("Unknown")',
       overrides: { gender: "Unknown" },
       valid: false,
       msg: ERROR_GENDER_INVALID,
     },
 
     {
-      label: 'A36: Gender = "Male" (case-insensitive)',
+      label: 'A35: Gender = "Male" (case-insensitive)',
       overrides: { gender: "Male" },
       valid: true,
     },
     {
-      label: 'A37: Gender = "Female"',
+      label: 'A36: Gender = "Female"',
       overrides: { gender: "Female" },
       valid: true,
     },
     {
-      label: 'A38: Gender = "Other"',
+      label: 'A37: Gender = "Other"',
       overrides: { gender: "Other" },
       valid: true,
     },
