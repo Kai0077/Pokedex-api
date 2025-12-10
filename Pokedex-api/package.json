@@ -7,6 +7,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
+    "test:unit": "vitest run --dir ./test/unit-test",
+    "test:integration": "vitest run --dir ./test/integration-test",
     "test:watch": "vitest --watch --reporter=verbose",
     "test:coverage": "vitest run --coverage",
     "dev": "tsx watch src/index.ts",
