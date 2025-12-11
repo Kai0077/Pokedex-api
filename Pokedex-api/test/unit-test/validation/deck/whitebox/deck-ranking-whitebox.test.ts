@@ -3,7 +3,7 @@ import { calculateDeckRank } from "../../../../../src/services/deck-ranking-serv
 
 const ERR_NOT_NUMBER = /Total must be a valid number/i;
 const ERR_NEGATIVE = /Total must be equal or above 0/i;
-
+// Testing pipeline
 function runCase(
   total: any,
   valid: boolean,
