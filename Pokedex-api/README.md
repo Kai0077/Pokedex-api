@@ -22,6 +22,3 @@
 `npm run lint:fix`  
 `npm run format:check`  
 `npm run format`
-
-
-
