@@ -14,10 +14,6 @@ export function validateGatherAllowed(
 
   const diffSeconds = (now.getTime() - lastGatherAt.getTime()) / 1000;
 
-  if (diffSeconds < 0) {
-    throw new Error("Invalid last gather timestamp");
-  }
-
   if (diffSeconds < GATHER_COOLDOWN_SECONDS) {
     throw new Error("You must wait 60 minutes before gathering again.");
   }
